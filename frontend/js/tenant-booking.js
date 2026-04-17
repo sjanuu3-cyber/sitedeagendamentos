@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const bookingForm = document.getElementById("bookingForm");
   const slotList = document.getElementById("slotList");
   const selectedSlotText = document.getElementById("selectedSlotText");
+  const quickDateList = document.getElementById("quickDateList");
   const tenantAdminEntryLink = document.getElementById("tenantAdminEntryLink");
   const summaryCompany = document.getElementById("summaryCompany");
   const summaryService = document.getElementById("summaryService");
@@ -33,10 +34,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   tenantAdminEntryLink.href = urls.login;
   bookingDate.min = AppUtils.todayString();
+  bookingDate.value = AppUtils.todayString();
+  renderQuickDates();
 
   bookingService.addEventListener("change", refreshAvailability);
   bookingProfessional.addEventListener("change", refreshAvailability);
-  bookingDate.addEventListener("change", refreshAvailability);
+  bookingDate.addEventListener("change", async () => {
+    updateQuickDateSelectionUI();
+    updateSummary();
+    await refreshAvailability();
+  });
   bookingForm.addEventListener("submit", handleAppointmentSubmit);
 
   try {
@@ -70,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     bookingService.disabled = false;
     bookingProfessional.disabled = false;
+    updateSummary();
   } catch (error) {
     bookingTitle.textContent = "Espaco nao encontrado";
     bookingSubtitle.textContent = "Confira a URL ou volte ao portal.";
@@ -214,6 +222,60 @@ document.addEventListener("DOMContentLoaded", async () => {
       : "--";
   }
 
+  function renderQuickDates() {
+    const baseDate = new Date();
+    baseDate.setHours(0, 0, 0, 0);
+
+    quickDateList.innerHTML = Array.from({ length: 7 }, (_, index) => {
+      const currentDate = new Date(baseDate);
+      currentDate.setDate(baseDate.getDate() + index);
+
+      const isoDate = [
+        currentDate.getFullYear(),
+        String(currentDate.getMonth() + 1).padStart(2, "0"),
+        String(currentDate.getDate()).padStart(2, "0"),
+      ].join("-");
+
+      const weekday = currentDate.toLocaleDateString("pt-BR", {
+        weekday: "short",
+      });
+      const dayMonth = currentDate.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+
+      return `
+        <button
+          class="booking-quick-date"
+          type="button"
+          data-date="${isoDate}"
+        >
+          <span>${AppUtils.escapeHtml(weekday.replace(".", ""))}</span>
+          <strong>${AppUtils.escapeHtml(dayMonth)}</strong>
+        </button>
+      `;
+    }).join("");
+
+    quickDateList.querySelectorAll("[data-date]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        bookingDate.value = button.dataset.date;
+        updateQuickDateSelectionUI();
+        updateSummary();
+        await refreshAvailability();
+      });
+    });
+
+    updateQuickDateSelectionUI();
+  }
+
+  function updateQuickDateSelectionUI() {
+    const selectedDate = bookingDate.value;
+
+    quickDateList.querySelectorAll("[data-date]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.date === selectedDate);
+    });
+  }
+
   async function refreshAvailability() {
     AppUtils.showMessage(bookingMessage, "");
     state.selectedSlot = "";
@@ -314,9 +376,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       bookingForm.elements.selectedSlot.value = "";
       state.selectedSlot = "";
       selectedSlotText.textContent = "Nenhum horario selecionado.";
-      bookingDate.value = "";
+      bookingDate.value = AppUtils.todayString();
       updateServiceSelectionUI();
       updateProfessionalSelectionUI();
+      updateQuickDateSelectionUI();
       updateSummary();
       await refreshAvailability();
     } catch (error) {
