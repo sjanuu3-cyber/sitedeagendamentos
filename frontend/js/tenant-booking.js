@@ -1,6 +1,13 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const slug = AppUtils.getTenantSlugFromPath();
   const urls = AppUtils.buildTenantUrls(slug);
+  const weekdayFormatter = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "long",
+  });
+  const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  });
   const bookingTitle = document.getElementById("bookingTitle");
   const bookingSubtitle = document.getElementById("bookingSubtitle");
   const bookingCompanyCard = document.getElementById("bookingCompanyCard");
@@ -172,6 +179,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ? AppUtils.escapeHtml(professional.specialty)
                 : "Profissional disponivel"
             }</span>
+            <span class="option-card__meta">${AppUtils.escapeHtml(
+              buildAvailabilityPreview(professional.availability)
+            )}</span>
           </button>
         `
       )
@@ -288,6 +298,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    const selectedProfessional = getSelectedProfessional();
+    const selectedService = getSelectedService();
+
+    if (!selectedProfessional) {
+      slotList.innerHTML = '<p class="empty-state">Escolha um profissional valido para ver os horarios.</p>';
+      return;
+    }
+
+    if (!hasAnyAvailability(selectedProfessional.availability)) {
+      slotList.innerHTML =
+        '<p class="empty-state">Este profissional ainda nao possui horarios configurados.</p>';
+      return;
+    }
+
     try {
       const params = new URLSearchParams({
         serviceId: bookingService.value,
@@ -299,16 +323,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         `/public/companies/${slug}/availability?${params.toString()}`
       );
 
-      renderSlots(data.slots);
+      renderSlots(data.slots, {
+        professional: selectedProfessional,
+        service: selectedService,
+        date: bookingDate.value,
+      });
     } catch (error) {
       slotList.innerHTML = '<p class="empty-state">Nao foi possivel carregar os horarios.</p>';
       AppUtils.showMessage(bookingMessage, error.message, "error");
     }
   }
 
-  function renderSlots(slots) {
+  function renderSlots(slots, context = {}) {
     if (!slots || slots.length === 0) {
-      slotList.innerHTML = '<p class="empty-state">Nenhum horario disponivel para esta combinacao.</p>';
+      slotList.innerHTML = `<p class="empty-state">${AppUtils.escapeHtml(
+        buildNoSlotsMessage(context)
+      )}</p>`;
       return;
     }
 
@@ -334,6 +364,129 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       });
     });
+  }
+
+  function getSelectedService() {
+    return state.catalog?.services?.find(
+      (service) => String(service.id) === String(bookingService.value)
+    );
+  }
+
+  function getSelectedProfessional() {
+    return state.catalog?.professionals?.find(
+      (professional) => String(professional.id) === String(bookingProfessional.value)
+    );
+  }
+
+  function hasAnyAvailability(availability) {
+    return Object.values(availability || {}).some((ranges) => Array.isArray(ranges) && ranges.length > 0);
+  }
+
+  function buildAvailabilityPreview(availability) {
+    const activeDays = AppUtils.weekDays
+      .filter((day) => Array.isArray(availability?.[day.key]) && availability[day.key].length > 0)
+      .map((day) => day.label);
+
+    if (activeDays.length === 0) {
+      return "Sem horarios definidos";
+    }
+
+    if (activeDays.length <= 3) {
+      return `Atende em ${activeDays.join(", ")}`;
+    }
+
+    return `Atende em ${activeDays.slice(0, 3).join(", ")} e mais ${activeDays.length - 3} dia(s)`;
+  }
+
+  function buildNoSlotsMessage({ professional, service, date }) {
+    if (!professional || !date) {
+      return "Nenhum horario disponivel para esta combinacao.";
+    }
+
+    const intervals = getIntervalsForDate(professional.availability, date);
+    const nextDates = getNextAvailableDates(professional.availability, date);
+    const nextDatesText = nextDates.length > 0 ? ` Tente ${nextDates.join(", ")}.` : "";
+
+    if (intervals.length === 0) {
+      return `Esse profissional nao atende em ${formatWeekDayLabel(date)}.${nextDatesText}`;
+    }
+
+    const serviceDuration = Number(service?.durationMinutes || 0);
+    const largestInterval = Math.max(
+      ...intervals.map((interval) => timeRangeInMinutes(interval.start, interval.end)),
+      0
+    );
+
+    if (serviceDuration > 0 && largestInterval < serviceDuration) {
+      return `O servico selecionado dura ${serviceDuration} min e nao cabe nas faixas de ${formatWeekDayLabel(date)}.${nextDatesText}`;
+    }
+
+    return `Nao ha horarios livres em ${formatFullDateLabel(date)}.${nextDatesText}`;
+  }
+
+  function getIntervalsForDate(availability, date) {
+    const weekDay = String(getWeekDayNumber(date));
+    return Array.isArray(availability?.[weekDay]) ? availability[weekDay] : [];
+  }
+
+  function getNextAvailableDates(availability, startDate, limit = 3) {
+    const suggestions = [];
+
+    for (let offset = 1; offset <= 14 && suggestions.length < limit; offset += 1) {
+      const candidateDate = addDaysToIsoDate(startDate, offset);
+
+      if (getIntervalsForDate(availability, candidateDate).length > 0) {
+        suggestions.push(formatShortDateLabel(candidateDate));
+      }
+    }
+
+    return suggestions;
+  }
+
+  function formatWeekDayLabel(date) {
+    return weekdayFormatter.format(createLocalDate(date));
+  }
+
+  function formatShortDateLabel(date) {
+    return `${weekdayFormatter.format(createLocalDate(date)).replace("-feira", "")} ${shortDateFormatter.format(createLocalDate(date))}`;
+  }
+
+  function formatFullDateLabel(date) {
+    return `${formatWeekDayLabel(date)} (${shortDateFormatter.format(createLocalDate(date))})`;
+  }
+
+  function getWeekDayNumber(date) {
+    return createLocalDate(date).getDay();
+  }
+
+  function addDaysToIsoDate(date, daysToAdd) {
+    const value = createLocalDate(date);
+    value.setDate(value.getDate() + daysToAdd);
+
+    return [
+      value.getFullYear(),
+      String(value.getMonth() + 1).padStart(2, "0"),
+      String(value.getDate()).padStart(2, "0"),
+    ].join("-");
+  }
+
+  function createLocalDate(date) {
+    const [year, month, day] = String(date).split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  function timeRangeInMinutes(start, end) {
+    return parseTime(start) >= 0 && parseTime(end) >= 0 ? parseTime(end) - parseTime(start) : 0;
+  }
+
+  function parseTime(value) {
+    const [hours, minutes] = String(value || "00:00").split(":").map(Number);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+      return -1;
+    }
+
+    return hours * 60 + minutes;
   }
 
   async function handleAppointmentSubmit(event) {
