@@ -7,69 +7,95 @@
     <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
-  <body>
-    <header class="hero portal-hero">
-      <div class="container hero-content portal-hero-content">
-        <div class="portal-hero-copy">
-          <span class="eyebrow">Portal multiempresa</span>
-          <h1>Seu cliente agenda no seu proprio link</h1>
-          <p class="hero-text">
-            Você cria o espaco da empresa uma vez. Depois, sua equipe usa so o
-            painel do proprio tenant e seus clientes acessam apenas a agenda da
-            sua marca.
-          </p>
-          <div class="portal-mini-points">
-            <span>Link exclusivo por empresa</span>
-            <span>Painel proprio</span>
-            <span>Agenda publica para clientes</span>
-          </div>
-          <div class="hero-actions">
-            <a class="button primary" href="/criar-espaco">Criar meu espaco</a>
-            <a class="button secondary" href="#acessoEspaco">Entrar no meu espaco</a>
+  <body class="portal-page">
+    <header class="saas-topbar">
+      <div class="container saas-topbar__inner">
+        <div class="saas-brand">
+          <img class="saas-brand__logo" src="/img/Jota.jpeg" alt="Jota" />
+          <div>
+            <span class="eyebrow">Plataforma de agendamento</span>
+            <strong>Meu Agendamento</strong>
           </div>
         </div>
 
-        <aside class="hero-card portal-preview-card">
-          <span class="share-space-tag">Exemplo de espaco</span>
-          <h2>studio-bela</h2>
-          <p class="muted">
-            O portal fica so para entrada. O uso diario acontece nos links da
-            propria empresa.
-          </p>
-
-          <div class="portal-preview-list">
-            <div class="portal-preview-item">
-              <span>Agenda publica</span>
-              <code>/espaco/studio-bela</code>
-            </div>
-            <div class="portal-preview-item">
-              <span>Login da empresa</span>
-              <code>/espaco/studio-bela/login</code>
-            </div>
-            <div class="portal-preview-item">
-              <span>Painel admin</span>
-              <code>/espaco/studio-bela/admin</code>
-            </div>
-          </div>
-        </aside>
+        <div class="hero-actions">
+          <a class="button secondary" href="#acessoEspaco">Entrar no meu espaco</a>
+          <a class="button primary" href="/criar-espaco">Criar espaco</a>
+        </div>
       </div>
     </header>
 
-    <main class="container portal-shell">
-      <section class="portal-actions-grid">
-        <article class="panel portal-action-card">
+    <main class="container saas-shell">
+      <section class="saas-hero">
+        <div class="saas-hero__copy">
+          <span class="eyebrow">Multiempresa, simples e elegante</span>
+          <h1>Cada negocio com seu proprio espaco de agendamento</h1>
+          <p class="hero-text">
+            Crie a empresa uma vez e entregue um link profissional para os clientes
+            agendarem direto na pagina da marca, com painel proprio para a equipe.
+          </p>
+
+          <div class="portal-mini-points saas-points">
+            <span>Agenda publica exclusiva</span>
+            <span>Painel proprio por empresa</span>
+            <span>Fluxo premium no celular</span>
+          </div>
+
+          <div class="hero-actions">
+            <a class="button primary" href="/criar-espaco">Quero criar meu espaco</a>
+            <a class="button secondary" href="#acessoEspaco">Ja tenho um espaco</a>
+          </div>
+        </div>
+
+        <aside class="saas-hero__preview">
+          <article class="saas-preview-card saas-preview-card--dark">
+            <span class="saas-preview-card__tag">Exemplo real</span>
+            <h2>studio-bela</h2>
+            <p>
+              A empresa nao usa o portal no dia a dia. Ela opera apenas dentro do
+              proprio tenant.
+            </p>
+
+            <div class="saas-preview-stack">
+              <div>
+                <span>Agenda</span>
+                <code>/espaco/studio-bela</code>
+              </div>
+              <div>
+                <span>Login</span>
+                <code>/espaco/studio-bela/login</code>
+              </div>
+              <div>
+                <span>Admin</span>
+                <code>/espaco/studio-bela/admin</code>
+              </div>
+            </div>
+          </article>
+
+          <article class="saas-preview-card">
+            <span class="saas-preview-card__tag">Ideal para</span>
+            <ul class="saas-bullet-list">
+              <li>Barbearias e saloes</li>
+              <li>Clinicas e consultorios</li>
+              <li>Negocios com equipe e horarios</li>
+            </ul>
+          </article>
+        </aside>
+      </section>
+
+      <section class="saas-card-grid">
+        <article class="saas-card saas-card--highlight">
           <div class="section-heading">
             <span class="section-step">1</span>
             <div>
               <h2>Criar um novo espaco</h2>
-              <p>Ideal para cadastrar uma nova empresa na plataforma.</p>
+              <p>Cadastre a empresa e entre direto no painel profissional dela.</p>
             </div>
           </div>
 
-          <div class="portal-link-stack">
-            <span><strong>Agenda:</strong> /espaco/studio-bela</span>
-            <span><strong>Login:</strong> /espaco/studio-bela/login</span>
-            <span><strong>Admin:</strong> /espaco/studio-bela/admin</span>
+          <div class="saas-inline-preview">
+            <span>Agenda publica, login e painel ficam prontos na hora.</span>
+            <strong>/espaco/seu-slug</strong>
           </div>
 
           <div class="hero-actions">
@@ -77,12 +103,12 @@
           </div>
         </article>
 
-        <article class="panel portal-action-card" id="acessoEspaco">
+        <article class="saas-card" id="acessoEspaco">
           <div class="section-heading">
             <span class="section-step">2</span>
             <div>
               <h2>Entrar em um espaco existente</h2>
-              <p>Digite o slug da empresa e escolha para onde deseja ir.</p>
+              <p>Digite o slug da empresa e escolha se vai abrir a agenda ou o login.</p>
             </div>
           </div>
 
@@ -112,32 +138,32 @@
         </article>
       </section>
 
-      <section class="panel panel-wide portal-flow-panel">
+      <section class="saas-card saas-card--wide">
         <div class="section-heading">
           <span class="section-step">3</span>
           <div>
-            <h2>Como funciona na pratica</h2>
-            <p>Mais simples para a empresa e mais direto para o cliente final.</p>
+            <h2>Como a plataforma funciona</h2>
+            <p>Um fluxo simples para a empresa e direto para o cliente final.</p>
           </div>
         </div>
 
-        <div class="portal-flow-grid">
-          <article class="portal-flow-card">
+        <div class="saas-flow-grid">
+          <article class="saas-flow-card">
             <span class="portal-flow-number">01</span>
             <h3>A empresa cria o espaco</h3>
-            <p>Define nome, slug e faz o primeiro login administrativo.</p>
+            <p>Define marca, slug e login administrativo no primeiro acesso.</p>
           </article>
 
-          <article class="portal-flow-card">
+          <article class="saas-flow-card">
             <span class="portal-flow-number">02</span>
             <h3>Recebe links proprios</h3>
-            <p>Ganham vida a agenda publica, o login e o admin do tenant.</p>
+            <p>A agenda publica e o painel passam a viver no link exclusivo da empresa.</p>
           </article>
 
-          <article class="portal-flow-card">
+          <article class="saas-flow-card">
             <span class="portal-flow-number">03</span>
             <h3>Cliente agenda direto</h3>
-            <p>O cliente acessa so a pagina daquela empresa, sem passar pelo portal.</p>
+            <p>Sem portal no meio do caminho: o cliente entra direto no espaco daquela marca.</p>
           </article>
         </div>
       </section>

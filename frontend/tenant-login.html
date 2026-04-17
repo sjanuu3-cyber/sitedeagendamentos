@@ -7,39 +7,62 @@
     <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
-  <body>
-    <header class="hero">
-      <div class="container hero-content">
-        <div>
-          <span class="eyebrow">Login do painel</span>
+  <body class="tenant-login-page">
+    <header class="saas-topbar">
+      <div class="container saas-topbar__inner">
+        <div class="saas-brand">
+          <img class="saas-brand__logo" src="/img/Jota.jpeg" alt="Jota" />
+          <div>
+            <span class="eyebrow">Acesso da empresa</span>
+            <strong>Login do tenant</strong>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a class="button secondary" id="goToBookingLink" href="/">Ver agenda publica</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container saas-shell">
+      <section class="saas-hero saas-hero--compact">
+        <div class="saas-hero__copy">
+          <span class="eyebrow">Painel privado</span>
           <h1 id="tenantLoginTitle">Carregando espaco...</h1>
           <p id="tenantLoginSubtitle" class="hero-text">
             Use o e-mail e a senha do administrador da empresa.
           </p>
         </div>
-        <div class="hero-card">
-          <h2>Entradas do espaco</h2>
-          <ul class="feature-list">
-            <li id="tenantBookingUrl">Agenda publica</li>
-            <li id="tenantAdminUrl">Painel administrativo</li>
-          </ul>
-        </div>
-      </div>
-    </header>
 
-    <main class="container single-column">
-      <section class="panel">
+        <aside class="saas-hero__preview">
+          <article class="saas-preview-card saas-preview-card--dark">
+            <span class="saas-preview-card__tag">Entradas do espaco</span>
+            <div class="saas-preview-stack">
+              <div>
+                <span>Agenda publica</span>
+                <code id="tenantBookingUrl">/espaco/slug</code>
+              </div>
+              <div>
+                <span>Painel administrativo</span>
+                <code id="tenantAdminUrl">/espaco/slug/admin</code>
+              </div>
+            </div>
+          </article>
+        </aside>
+      </section>
+
+      <section class="saas-card saas-card--wide login-card">
         <div class="section-heading">
           <span class="section-step">1</span>
           <div>
             <h2>Entrar no painel da empresa</h2>
-            <p>Apos o login, a empresa permanece no proprio espaco.</p>
+            <p>Apos o login, voce permanece dentro do proprio espaco da empresa.</p>
           </div>
         </div>
 
         <div id="loginMessage" class="form-message" hidden></div>
 
-        <form id="loginForm" class="form-grid">
+        <form id="loginForm" class="form-grid login-form-card">
           <label>
             E-mail
             <input type="email" name="email" placeholder="admin@empresa.com" required />
@@ -52,7 +75,7 @@
 
           <div class="inline-actions">
             <button class="button primary" type="submit">Entrar no painel</button>
-            <a class="button secondary" id="goToBookingLink" href="/">Ver agenda publica</a>
+            <a class="button secondary" href="/">Voltar ao portal</a>
           </div>
         </form>
       </section>

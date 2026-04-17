@@ -7,91 +7,121 @@
     <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
-  <body>
-    <header class="hero">
-      <div class="container hero-content">
-        <div>
-          <span class="eyebrow">Criacao de espaco</span>
-          <h1>Cadastre a empresa e gere o ambiente proprio dela</h1>
-          <p class="hero-text">
-            Quando terminar, a empresa sera redirecionada para o proprio painel
-            e nao precisara voltar para o portal no uso diario.
-          </p>
-          <div class="hero-actions">
-            <a class="button secondary" href="/">Voltar ao portal</a>
+  <body class="create-space-page">
+    <header class="saas-topbar">
+      <div class="container saas-topbar__inner">
+        <div class="saas-brand">
+          <img class="saas-brand__logo" src="/img/Jota.jpeg" alt="Jota" />
+          <div>
+            <span class="eyebrow">Onboarding da empresa</span>
+            <strong>Criar novo espaco</strong>
           </div>
         </div>
-        <div class="hero-card">
-          <h2>O que sai pronto</h2>
-          <ul class="feature-list">
-            <li>URL publica da agenda</li>
-            <li>URL do login da empresa</li>
-            <li>URL do painel administrativo</li>
-          </ul>
+
+        <div class="hero-actions">
+          <a class="button secondary" href="/">Voltar ao portal</a>
         </div>
       </div>
     </header>
 
-    <main class="container single-column">
-      <section class="panel">
+    <main class="container saas-shell">
+      <section class="saas-hero saas-hero--compact">
+        <div class="saas-hero__copy">
+          <span class="eyebrow">Configuracao inicial</span>
+          <h1>Cadastre a empresa e deixe o espaco pronto para operar</h1>
+          <p class="hero-text">
+            Em poucos minutos sua empresa recebe agenda publica, login proprio e painel
+            admin no mesmo ambiente da marca.
+          </p>
+        </div>
+
+        <aside class="saas-hero__preview">
+          <article class="saas-preview-card">
+            <span class="saas-preview-card__tag">Entrega imediata</span>
+            <ul class="saas-bullet-list">
+              <li>Link publico para clientes</li>
+              <li>Login exclusivo da empresa</li>
+              <li>Painel com servicos, equipe e agenda</li>
+            </ul>
+          </article>
+        </aside>
+      </section>
+
+      <section class="saas-card saas-card--wide onboarding-card">
         <div class="section-heading">
           <span class="section-step">1</span>
           <div>
-            <h2>Dados da empresa</h2>
-            <p>O slug sera usado nas URLs do espaco.</p>
+            <h2>Informacoes da empresa</h2>
+            <p>O slug define o endereco publico do espaco. Depois voce entra direto no painel.</p>
           </div>
         </div>
 
         <div id="registerMessage" class="form-message" hidden></div>
 
-        <form id="registerForm" class="form-grid form-grid-2">
-          <label>
-            Nome da empresa
-            <input type="text" name="companyName" placeholder="Studio Bela" required />
-          </label>
+        <form id="registerForm" class="form-grid form-grid-2 onboarding-form">
+          <div class="onboarding-block field-span">
+            <h3>Marca e espaco</h3>
+            <div class="form-grid form-grid-2">
+              <label>
+                Nome da empresa
+                <input type="text" name="companyName" placeholder="Studio Bela" required />
+              </label>
 
-          <label>
-            Slug publico
-            <input type="text" name="companySlug" placeholder="studio-bela" required />
-          </label>
+              <label>
+                Slug publico
+                <input type="text" name="companySlug" placeholder="studio-bela" required />
+              </label>
 
-          <label>
-            Segmento
-            <select name="segment" required>
-              <option value="barbearia">Barbearia</option>
-              <option value="manicure">Manicure</option>
-              <option value="salao">Salao</option>
-              <option value="odontologia">Odontologia</option>
-              <option value="outro">Outro</option>
-            </select>
-          </label>
+              <label>
+                Segmento
+                <select name="segment" required>
+                  <option value="barbearia">Barbearia</option>
+                  <option value="manicure">Manicure</option>
+                  <option value="salao">Salao</option>
+                  <option value="odontologia">Odontologia</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </label>
 
-          <label>
-            E-mail da empresa
-            <input type="email" name="companyEmail" placeholder="contato@empresa.com" required />
-          </label>
+              <label>
+                E-mail da empresa
+                <input type="email" name="companyEmail" placeholder="contato@empresa.com" required />
+              </label>
 
-          <label>
-            Telefone
-            <input type="text" name="phone" placeholder="(11) 99999-9999" />
-          </label>
+              <label>
+                Telefone
+                <input type="text" name="phone" placeholder="(11) 99999-9999" />
+              </label>
+            </div>
+          </div>
 
-          <label>
-            Nome do administrador
-            <input type="text" name="adminName" placeholder="Responsavel" required />
-          </label>
+          <div class="onboarding-block field-span">
+            <h3>Administrador inicial</h3>
+            <div class="form-grid form-grid-2">
+              <label>
+                Nome do administrador
+                <input type="text" name="adminName" placeholder="Responsavel" required />
+              </label>
 
-          <label>
-            E-mail de login
-            <input type="email" name="adminEmail" placeholder="admin@empresa.com" required />
-          </label>
+              <label>
+                E-mail de login
+                <input type="email" name="adminEmail" placeholder="admin@empresa.com" required />
+              </label>
 
-          <label>
-            Senha
-            <input type="password" name="password" placeholder="Minimo de 6 caracteres" required />
-          </label>
+              <label>
+                Senha
+                <input type="password" name="password" placeholder="Minimo de 6 caracteres" required />
+              </label>
+            </div>
+          </div>
 
-          <button class="button primary field-span" type="submit">Criar espaco e entrar</button>
+          <div class="onboarding-footer field-span">
+            <div class="onboarding-footer__note">
+              <strong>O que acontece depois?</strong>
+              <span>Voce sera redirecionado direto para o painel do espaco criado.</span>
+            </div>
+            <button class="button primary" type="submit">Criar espaco e entrar</button>
+          </div>
         </form>
       </section>
     </main>

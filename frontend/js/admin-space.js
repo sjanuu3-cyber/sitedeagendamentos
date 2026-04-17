@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const adminCompanyName = document.getElementById("adminCompanyName");
   const adminCompanyMeta = document.getElementById("adminCompanyMeta");
+  const serviceCountValue = document.getElementById("serviceCountValue");
+  const professionalCountValue = document.getElementById("professionalCountValue");
+  const appointmentCountValue = document.getElementById("appointmentCountValue");
+  const agendaStatusValue = document.getElementById("agendaStatusValue");
   const publicBookingLink = document.getElementById("publicBookingLink");
   const logoutButton = document.getElementById("logoutButton");
   const shareSpaceMessage = document.getElementById("shareSpaceMessage");
@@ -111,6 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderServices();
     renderProfessionals();
     populateAppointmentSelects();
+    updateDashboardMetrics();
     await loadAppointments();
   }
 
@@ -265,6 +270,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     state.appointments = data.appointments;
     renderAppointments();
+    updateDashboardMetrics();
   }
 
   async function handleServiceSubmit(event) {
@@ -587,6 +593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     state.services = data.services;
     renderServices();
     populateAppointmentSelects();
+    updateDashboardMetrics();
   }
 
   async function refreshProfessionals() {
@@ -594,6 +601,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     state.professionals = data.professionals;
     renderProfessionals();
     populateAppointmentSelects();
+    updateDashboardMetrics();
+  }
+
+  function updateDashboardMetrics() {
+    if (serviceCountValue) {
+      serviceCountValue.textContent = String(
+        state.services.filter((service) => service.active).length
+      );
+    }
+
+    if (professionalCountValue) {
+      professionalCountValue.textContent = String(
+        state.professionals.filter((professional) => professional.active).length
+      );
+    }
+
+    if (appointmentCountValue) {
+      appointmentCountValue.textContent = String(state.appointments.length);
+    }
+
+    if (agendaStatusValue) {
+      const hasBaseSetup =
+        state.services.some((service) => service.active) &&
+        state.professionals.some((professional) => professional.active);
+
+      agendaStatusValue.textContent = hasBaseSetup
+        ? "Em operacao"
+        : "Configuracao inicial";
+    }
   }
 
   function normalizeDate(value) {
