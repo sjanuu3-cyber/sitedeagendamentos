@@ -6,6 +6,7 @@ const {
   isNonNegativeNumber,
   isPositiveInteger,
 } = require("../utils/validation");
+const { toBoolean } = require("../utils/formatters");
 
 function mapService(row) {
   return {
@@ -14,10 +15,31 @@ function mapService(row) {
     durationMinutes: row.durationMinutes,
     price: Number(row.price),
     description: row.description,
-    active: row.active,
+    active: toBoolean(row.active),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+}
+
+async function loadServiceById(serviceId, companyId) {
+  const result = await db.query(
+    `
+      SELECT
+        id,
+        nome AS name,
+        duracao_minutos AS durationMinutes,
+        preco AS price,
+        descricao AS description,
+        ativo AS active,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+      FROM servicos
+      WHERE id = ? AND empresa_id = ?
+    `,
+    [serviceId, companyId]
+  );
+
+  return result.rows[0] || null;
 }
 
 async function listServices(req, res, next) {
@@ -26,15 +48,15 @@ async function listServices(req, res, next) {
       `
         SELECT
           id,
-          nome AS "name",
-          duracao_minutos AS "durationMinutes",
-          preco AS "price",
-          descricao AS "description",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+          nome AS name,
+          duracao_minutos AS durationMinutes,
+          preco AS price,
+          descricao AS description,
+          ativo AS active,
+          created_at AS createdAt,
+          updated_at AS updatedAt
         FROM servicos
-        WHERE empresa_id = $1
+        WHERE empresa_id = ?
         ORDER BY nome
       `,
       [req.user.empresaId]
@@ -67,16 +89,7 @@ async function createService(req, res, next) {
     const result = await db.query(
       `
         INSERT INTO servicos (empresa_id, nome, duracao_minutos, preco, descricao)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING
-          id,
-          nome AS "name",
-          duracao_minutos AS "durationMinutes",
-          preco AS "price",
-          descricao AS "description",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+        VALUES (?, ?, ?, ?, ?)
       `,
       [
         req.user.empresaId,
@@ -87,9 +100,11 @@ async function createService(req, res, next) {
       ]
     );
 
+    const service = await loadServiceById(result.insertId, req.user.empresaId);
+
     return res.status(201).json({
       message: "Serviço cadastrado com sucesso.",
-      service: mapService(result.rows[0]),
+      service: mapService(service),
     });
   } catch (error) {
     next(error);
@@ -115,29 +130,20 @@ async function updateService(req, res, next) {
       `
         UPDATE servicos
         SET
-          nome = $1,
-          duracao_minutos = $2,
-          preco = $3,
-          descricao = $4,
-          ativo = $5,
-          updated_at = NOW()
-        WHERE id = $6 AND empresa_id = $7
-        RETURNING
-          id,
-          nome AS "name",
-          duracao_minutos AS "durationMinutes",
-          preco AS "price",
-          descricao AS "description",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+          nome = ?,
+          duracao_minutos = ?,
+          preco = ?,
+          descricao = ?,
+          ativo = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [
         name.trim(),
         Number(durationMinutes),
         Number(price),
         description?.trim() || null,
-        active !== false,
+        active !== false ? 1 : 0,
         Number(id),
         req.user.empresaId,
       ]
@@ -147,9 +153,11 @@ async function updateService(req, res, next) {
       throw new AppError("Serviço não encontrado para esta empresa.", 404);
     }
 
+    const service = await loadServiceById(Number(id), req.user.empresaId);
+
     return res.json({
       message: "Serviço atualizado com sucesso.",
-      service: mapService(result.rows[0]),
+      service: mapService(service),
     });
   } catch (error) {
     next(error);
@@ -161,9 +169,8 @@ async function deactivateService(req, res, next) {
     const result = await db.query(
       `
         UPDATE servicos
-        SET ativo = FALSE, updated_at = NOW()
-        WHERE id = $1 AND empresa_id = $2
-        RETURNING id
+        SET ativo = 0, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [Number(req.params.id), req.user.empresaId]
     );

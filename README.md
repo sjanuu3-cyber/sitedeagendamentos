@@ -4,8 +4,12 @@ Projeto full stack com:
 
 - Frontend em HTML, CSS e JavaScript puro
 - Backend em Node.js com Express
-- Banco de dados PostgreSQL
+- Banco de dados MySQL
 - Arquitetura multi-tenant com separação por `empresa_id`
+
+Guia recomendado para publicar sem VPS na Hostinger:
+
+- `HOSTINGER_WEB_APP.md`
 
 ## Fluxo atual de uso
 

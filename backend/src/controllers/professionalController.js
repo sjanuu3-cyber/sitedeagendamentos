@@ -5,6 +5,7 @@ const {
   isValidEmail,
   sanitizeAvailability,
 } = require("../utils/validation");
+const { parseJsonObject, toBoolean } = require("../utils/formatters");
 
 function mapProfessional(row) {
   return {
@@ -13,11 +14,33 @@ function mapProfessional(row) {
     specialty: row.specialty,
     email: row.email,
     phone: row.phone,
-    availability: row.availability || {},
-    active: row.active,
+    availability: parseJsonObject(row.availability),
+    active: toBoolean(row.active),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+}
+
+async function loadProfessionalById(professionalId, companyId) {
+  const result = await db.query(
+    `
+      SELECT
+        id,
+        nome AS name,
+        especialidade AS specialty,
+        email,
+        telefone AS phone,
+        disponibilidade AS availability,
+        ativo AS active,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+      FROM profissionais
+      WHERE id = ? AND empresa_id = ?
+    `,
+    [professionalId, companyId]
+  );
+
+  return result.rows[0] || null;
 }
 
 async function listProfessionals(req, res, next) {
@@ -26,16 +49,16 @@ async function listProfessionals(req, res, next) {
       `
         SELECT
           id,
-          nome AS "name",
-          especialidade AS "specialty",
+          nome AS name,
+          especialidade AS specialty,
           email,
-          telefone AS "phone",
-          disponibilidade AS "availability",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+          telefone AS phone,
+          disponibilidade AS availability,
+          ativo AS active,
+          created_at AS createdAt,
+          updated_at AS updatedAt
         FROM profissionais
-        WHERE empresa_id = $1
+        WHERE empresa_id = ?
         ORDER BY nome
       `,
       [req.user.empresaId]
@@ -69,17 +92,7 @@ async function createProfessional(req, res, next) {
           telefone,
           disponibilidade
         )
-        VALUES ($1, $2, $3, $4, $5, $6::jsonb)
-        RETURNING
-          id,
-          nome AS "name",
-          especialidade AS "specialty",
-          email,
-          telefone AS "phone",
-          disponibilidade AS "availability",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
       [
         req.user.empresaId,
@@ -91,9 +104,11 @@ async function createProfessional(req, res, next) {
       ]
     );
 
+    const professional = await loadProfessionalById(result.insertId, req.user.empresaId);
+
     return res.status(201).json({
       message: "Profissional cadastrado com sucesso.",
-      professional: mapProfessional(result.rows[0]),
+      professional: mapProfessional(professional),
     });
   } catch (error) {
     next(error);
@@ -117,24 +132,14 @@ async function updateProfessional(req, res, next) {
       `
         UPDATE profissionais
         SET
-          nome = $1,
-          especialidade = $2,
-          email = $3,
-          telefone = $4,
-          disponibilidade = $5::jsonb,
-          ativo = $6,
-          updated_at = NOW()
-        WHERE id = $7 AND empresa_id = $8
-        RETURNING
-          id,
-          nome AS "name",
-          especialidade AS "specialty",
-          email,
-          telefone AS "phone",
-          disponibilidade AS "availability",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+          nome = ?,
+          especialidade = ?,
+          email = ?,
+          telefone = ?,
+          disponibilidade = ?,
+          ativo = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [
         name.trim(),
@@ -142,7 +147,7 @@ async function updateProfessional(req, res, next) {
         email?.trim() || null,
         phone?.trim() || null,
         JSON.stringify(sanitizedAvailability),
-        active !== false,
+        active !== false ? 1 : 0,
         Number(id),
         req.user.empresaId,
       ]
@@ -152,9 +157,11 @@ async function updateProfessional(req, res, next) {
       throw new AppError("Profissional não encontrado para esta empresa.", 404);
     }
 
+    const professional = await loadProfessionalById(Number(id), req.user.empresaId);
+
     return res.json({
       message: "Profissional atualizado com sucesso.",
-      professional: mapProfessional(result.rows[0]),
+      professional: mapProfessional(professional),
     });
   } catch (error) {
     next(error);
@@ -171,18 +178,8 @@ async function updateAvailability(req, res, next) {
     const result = await db.query(
       `
         UPDATE profissionais
-        SET disponibilidade = $1::jsonb, updated_at = NOW()
-        WHERE id = $2 AND empresa_id = $3
-        RETURNING
-          id,
-          nome AS "name",
-          especialidade AS "specialty",
-          email,
-          telefone AS "phone",
-          disponibilidade AS "availability",
-          ativo AS "active",
-          created_at AS "createdAt",
-          updated_at AS "updatedAt"
+        SET disponibilidade = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [JSON.stringify(sanitizedAvailability), Number(id), req.user.empresaId]
     );
@@ -191,9 +188,11 @@ async function updateAvailability(req, res, next) {
       throw new AppError("Profissional não encontrado para esta empresa.", 404);
     }
 
+    const professional = await loadProfessionalById(Number(id), req.user.empresaId);
+
     return res.json({
       message: "Disponibilidade atualizada com sucesso.",
-      professional: mapProfessional(result.rows[0]),
+      professional: mapProfessional(professional),
     });
   } catch (error) {
     next(error);
@@ -205,9 +204,8 @@ async function deactivateProfessional(req, res, next) {
     const result = await db.query(
       `
         UPDATE profissionais
-        SET ativo = FALSE, updated_at = NOW()
-        WHERE id = $1 AND empresa_id = $2
-        RETURNING id
+        SET ativo = 0, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [Number(req.params.id), req.user.empresaId]
     );

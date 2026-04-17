@@ -81,48 +81,44 @@ async function register(req, res, next) {
     const client = await db.getClient();
 
     try {
-      await client.query("BEGIN");
+      await client.beginTransaction();
 
       const companyResult = await client.query(
         `
           INSERT INTO empresas (nome_fantasia, slug, segmento, email_contato, telefone)
-          VALUES ($1, $2, $3, $4, $5)
-          RETURNING id, nome_fantasia, slug, segmento, email_contato, telefone
+          VALUES (?, ?, ?, ?, ?)
         `,
         [companyName.trim(), slug, segment, companyEmail.trim(), phone?.trim() || null]
       );
 
-      const company = companyResult.rows[0];
+      const companyId = companyResult.insertId;
 
       const userResult = await client.query(
         `
           INSERT INTO usuarios (empresa_id, nome, email, senha_hash, role)
-          VALUES ($1, $2, $3, $4, 'admin')
-          RETURNING id, empresa_id, nome, email, role
+          VALUES (?, ?, ?, ?, 'admin')
         `,
-        [company.id, adminName.trim(), adminEmail.trim(), passwordHash]
+        [companyId, adminName.trim(), adminEmail.trim(), passwordHash]
       );
 
-      await client.query("COMMIT");
-
-      const user = userResult.rows[0];
+      await client.commit();
 
       return res.status(201).json(
         buildAuthPayload({
-          user_id: user.id,
-          empresa_id: company.id,
-          user_name: user.nome,
-          user_email: user.email,
-          role: user.role,
-          company_name: company.nome_fantasia,
-          slug: company.slug,
-          segmento: company.segmento,
-          email_contato: company.email_contato,
-          telefone: company.telefone,
+          user_id: userResult.insertId,
+          empresa_id: companyId,
+          user_name: adminName.trim(),
+          user_email: adminEmail.trim(),
+          role: "admin",
+          company_name: companyName.trim(),
+          slug,
+          segmento: segment,
+          email_contato: companyEmail.trim(),
+          telefone: phone?.trim() || null,
         })
       );
     } catch (error) {
-      await client.query("ROLLBACK");
+      await client.rollback();
       throw error;
     } finally {
       client.release();
@@ -154,7 +150,7 @@ async function login(req, res, next) {
           e.telefone
         FROM usuarios u
         INNER JOIN empresas e ON e.id = u.empresa_id
-        WHERE u.email = $1
+        WHERE u.email = ?
       `,
       [email.trim()]
     );
@@ -193,7 +189,7 @@ async function me(req, res, next) {
           e.telefone
         FROM usuarios u
         INNER JOIN empresas e ON e.id = u.empresa_id
-        WHERE u.id = $1 AND u.empresa_id = $2
+        WHERE u.id = ? AND u.empresa_id = ?
       `,
       [req.user.userId, req.user.empresaId]
     );

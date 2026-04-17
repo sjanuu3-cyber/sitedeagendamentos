@@ -1,0 +1,14 @@
+{
+  "name": "multi-tenant-scheduler-hostinger",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Entrada raiz para deploy na Hostinger Web App.",
+  "scripts": {
+    "postinstall": "npm install --prefix backend",
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

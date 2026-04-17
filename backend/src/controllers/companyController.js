@@ -16,6 +16,11 @@ const {
   isValidEmail,
   isValidTime,
 } = require("../utils/validation");
+const {
+  formatDateValue,
+  formatTimeValue,
+  parseJsonObject,
+} = require("../utils/formatters");
 const { isDateInPast } = require("../utils/time");
 
 function mapCompany(row) {
@@ -46,7 +51,7 @@ function mapProfessional(row) {
     specialty: row.specialty,
     email: row.email,
     phone: row.phone,
-    availability: row.availability || {},
+    availability: parseJsonObject(row.availability),
   };
 }
 
@@ -60,9 +65,9 @@ function mapAppointment(row) {
     clientName: row.clientName,
     clientPhone: row.clientPhone,
     clientEmail: row.clientEmail,
-    appointmentDate: row.appointmentDate,
-    startTime: row.startTime,
-    endTime: row.endTime,
+    appointmentDate: formatDateValue(row.appointmentDate),
+    startTime: formatTimeValue(row.startTime),
+    endTime: formatTimeValue(row.endTime),
     durationMinutes: row.durationMinutes,
     price: Number(row.price),
     status: row.status,
@@ -97,12 +102,12 @@ async function getCompanyCatalog(req, res, next) {
         `
           SELECT
             id,
-            nome AS "name",
-            duracao_minutos AS "durationMinutes",
-            preco AS "price",
-            descricao AS "description"
+            nome AS name,
+            duracao_minutos AS durationMinutes,
+            preco AS price,
+            descricao AS description
           FROM servicos
-          WHERE empresa_id = $1 AND ativo = TRUE
+          WHERE empresa_id = ? AND ativo = 1
           ORDER BY nome
         `,
         [company.id]
@@ -111,13 +116,13 @@ async function getCompanyCatalog(req, res, next) {
         `
           SELECT
             id,
-            nome AS "name",
-            especialidade AS "specialty",
+            nome AS name,
+            especialidade AS specialty,
             email,
-            telefone AS "phone",
-            disponibilidade AS "availability"
+            telefone AS phone,
+            disponibilidade AS availability
           FROM profissionais
-          WHERE empresa_id = $1 AND ativo = TRUE
+          WHERE empresa_id = ? AND ativo = 1
           ORDER BY nome
         `,
         [company.id]
@@ -267,21 +272,7 @@ async function createAppointment(req, res, next) {
           status,
           observacoes
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'agendado', $12)
-        RETURNING
-          id,
-          servico_id AS "serviceId",
-          profissional_id AS "professionalId",
-          cliente_nome AS "clientName",
-          cliente_telefone AS "clientPhone",
-          cliente_email AS "clientEmail",
-          TO_CHAR(data_agendamento, 'YYYY-MM-DD') AS "appointmentDate",
-          TO_CHAR(horario_inicio, 'HH24:MI') AS "startTime",
-          TO_CHAR(horario_fim, 'HH24:MI') AS "endTime",
-          duracao_minutos AS "durationMinutes",
-          preco AS "price",
-          status,
-          observacoes AS "notes"
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'agendado', ?)
       `,
       [
         company.id,
@@ -302,9 +293,21 @@ async function createAppointment(req, res, next) {
     return res.status(201).json({
       message: "Agendamento realizado com sucesso.",
       appointment: mapAppointment({
-        ...result.rows[0],
+        id: result.insertId,
+        serviceId: service.id,
         serviceName: service.nome,
+        professionalId: professional.id,
         professionalName: professional.nome,
+        clientName: clientName.trim(),
+        clientPhone: clientPhone.trim(),
+        clientEmail: clientEmail?.trim() || null,
+        appointmentDate,
+        startTime,
+        endTime,
+        durationMinutes: service.duracao_minutos,
+        price: service.preco,
+        status: "agendado",
+        notes: notes?.trim() || null,
       }),
     });
   } catch (error) {

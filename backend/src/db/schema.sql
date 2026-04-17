@@ -1,77 +1,91 @@
 CREATE TABLE IF NOT EXISTS empresas (
-  id SERIAL PRIMARY KEY,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nome_fantasia VARCHAR(150) NOT NULL,
-  slug VARCHAR(150) NOT NULL UNIQUE,
-  segmento VARCHAR(30) NOT NULL CHECK (segmento IN ('barbearia', 'manicure', 'salao', 'odontologia', 'outro')),
-  email_contato VARCHAR(150) NOT NULL UNIQUE,
-  telefone VARCHAR(30),
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+  slug VARCHAR(150) NOT NULL,
+  segmento ENUM('barbearia', 'manicure', 'salao', 'odontologia', 'outro') NOT NULL,
+  email_contato VARCHAR(150) NOT NULL,
+  telefone VARCHAR(30) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_empresas_slug (slug),
+  UNIQUE KEY uq_empresas_email_contato (email_contato)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS usuarios (
-  id SERIAL PRIMARY KEY,
-  empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  empresa_id INT UNSIGNED NOT NULL,
   nome VARCHAR(120) NOT NULL,
-  email VARCHAR(150) NOT NULL UNIQUE,
+  email VARCHAR(150) NOT NULL,
   senha_hash VARCHAR(255) NOT NULL,
   role VARCHAR(30) NOT NULL DEFAULT 'admin',
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_usuarios_email (email),
+  KEY idx_usuarios_empresa_id (empresa_id),
+  CONSTRAINT fk_usuarios_empresa
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS profissionais (
-  id SERIAL PRIMARY KEY,
-  empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  empresa_id INT UNSIGNED NOT NULL,
   nome VARCHAR(120) NOT NULL,
-  especialidade VARCHAR(120),
-  email VARCHAR(150),
-  telefone VARCHAR(30),
-  disponibilidade JSONB NOT NULL DEFAULT '{}'::jsonb,
-  ativo BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+  especialidade VARCHAR(120) NULL,
+  email VARCHAR(150) NULL,
+  telefone VARCHAR(30) NULL,
+  disponibilidade LONGTEXT NOT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_profissionais_empresa_id (empresa_id),
+  CONSTRAINT fk_profissionais_empresa
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS servicos (
-  id SERIAL PRIMARY KEY,
-  empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  empresa_id INT UNSIGNED NOT NULL,
   nome VARCHAR(150) NOT NULL,
-  duracao_minutos INTEGER NOT NULL CHECK (duracao_minutos > 0 AND duracao_minutos <= 480),
-  preco NUMERIC(10, 2) NOT NULL CHECK (preco >= 0),
-  descricao TEXT,
-  ativo BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT uq_servico_nome_por_empresa UNIQUE (empresa_id, nome)
-);
+  duracao_minutos INT NOT NULL,
+  preco DECIMAL(10, 2) NOT NULL,
+  descricao TEXT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_servico_nome_por_empresa (empresa_id, nome),
+  KEY idx_servicos_empresa_id (empresa_id),
+  CONSTRAINT fk_servicos_empresa
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS agendamentos (
-  id SERIAL PRIMARY KEY,
-  empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
-  servico_id INTEGER NOT NULL REFERENCES servicos(id),
-  profissional_id INTEGER NOT NULL REFERENCES profissionais(id),
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  empresa_id INT UNSIGNED NOT NULL,
+  servico_id INT UNSIGNED NOT NULL,
+  profissional_id INT UNSIGNED NOT NULL,
   cliente_nome VARCHAR(120) NOT NULL,
   cliente_telefone VARCHAR(30) NOT NULL,
-  cliente_email VARCHAR(150),
+  cliente_email VARCHAR(150) NULL,
   data_agendamento DATE NOT NULL,
   horario_inicio TIME NOT NULL,
   horario_fim TIME NOT NULL,
-  duracao_minutos INTEGER NOT NULL CHECK (duracao_minutos > 0),
-  preco NUMERIC(10, 2) NOT NULL CHECK (preco >= 0),
-  status VARCHAR(30) NOT NULL DEFAULT 'agendado' CHECK (status IN ('agendado', 'cancelado', 'concluido')),
-  observacoes TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_usuarios_empresa_id ON usuarios (empresa_id);
-CREATE INDEX IF NOT EXISTS idx_profissionais_empresa_id ON profissionais (empresa_id);
-CREATE INDEX IF NOT EXISTS idx_servicos_empresa_id ON servicos (empresa_id);
-CREATE INDEX IF NOT EXISTS idx_agendamentos_empresa_id ON agendamentos (empresa_id);
-CREATE INDEX IF NOT EXISTS idx_agendamentos_data_profissional
-  ON agendamentos (empresa_id, profissional_id, data_agendamento);
-
-CREATE UNIQUE INDEX IF NOT EXISTS ux_agendamento_horario_ativo
-  ON agendamentos (empresa_id, profissional_id, data_agendamento, horario_inicio)
-  WHERE status <> 'cancelado';
+  duracao_minutos INT NOT NULL,
+  preco DECIMAL(10, 2) NOT NULL,
+  status ENUM('agendado', 'cancelado', 'concluido') NOT NULL DEFAULT 'agendado',
+  observacoes TEXT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_agendamentos_empresa_id (empresa_id),
+  KEY idx_agendamentos_data_profissional (empresa_id, profissional_id, data_agendamento),
+  CONSTRAINT fk_agendamentos_empresa
+    FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE,
+  CONSTRAINT fk_agendamentos_servico
+    FOREIGN KEY (servico_id) REFERENCES servicos(id),
+  CONSTRAINT fk_agendamentos_profissional
+    FOREIGN KEY (profissional_id) REFERENCES profissionais(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -14,6 +14,10 @@ const {
   isValidTime,
 } = require("../utils/validation");
 const { addMinutesToTime, isDateInPast } = require("../utils/time");
+const {
+  formatDateValue,
+  formatTimeValue,
+} = require("../utils/formatters");
 
 function mapAppointment(row) {
   return {
@@ -26,9 +30,9 @@ function mapAppointment(row) {
     clientName: row.clientName,
     clientPhone: row.clientPhone,
     clientEmail: row.clientEmail,
-    appointmentDate: row.appointmentDate,
-    startTime: row.startTime,
-    endTime: row.endTime,
+    appointmentDate: formatDateValue(row.appointmentDate),
+    startTime: formatTimeValue(row.startTime),
+    endTime: formatTimeValue(row.endTime),
     durationMinutes: row.durationMinutes,
     price: Number(row.price),
     status: row.status,
@@ -43,27 +47,27 @@ async function loadHydratedAppointment(appointmentId) {
     `
       SELECT
         a.id,
-        a.empresa_id AS "companyId",
-        a.servico_id AS "serviceId",
-        s.nome AS "serviceName",
-        a.profissional_id AS "professionalId",
-        p.nome AS "professionalName",
-        a.cliente_nome AS "clientName",
-        a.cliente_telefone AS "clientPhone",
-        a.cliente_email AS "clientEmail",
-        TO_CHAR(a.data_agendamento, 'YYYY-MM-DD') AS "appointmentDate",
-        TO_CHAR(a.horario_inicio, 'HH24:MI') AS "startTime",
-        TO_CHAR(a.horario_fim, 'HH24:MI') AS "endTime",
-        a.duracao_minutos AS "durationMinutes",
-        a.preco AS "price",
+        a.empresa_id AS companyId,
+        a.servico_id AS serviceId,
+        s.nome AS serviceName,
+        a.profissional_id AS professionalId,
+        p.nome AS professionalName,
+        a.cliente_nome AS clientName,
+        a.cliente_telefone AS clientPhone,
+        a.cliente_email AS clientEmail,
+        a.data_agendamento AS appointmentDate,
+        a.horario_inicio AS startTime,
+        a.horario_fim AS endTime,
+        a.duracao_minutos AS durationMinutes,
+        a.preco AS price,
         a.status,
-        a.observacoes AS "notes",
-        a.created_at AS "createdAt",
-        a.updated_at AS "updatedAt"
+        a.observacoes AS notes,
+        a.created_at AS createdAt,
+        a.updated_at AS updatedAt
       FROM agendamentos a
       INNER JOIN servicos s ON s.id = a.servico_id
       INNER JOIN profissionais p ON p.id = a.profissional_id
-      WHERE a.id = $1
+      WHERE a.id = ?
     `,
     [appointmentId]
   );
@@ -73,40 +77,40 @@ async function loadHydratedAppointment(appointmentId) {
 
 async function listAppointments(req, res, next) {
   try {
-    const filters = ["a.empresa_id = $1"];
+    const filters = ["a.empresa_id = ?"];
     const values = [req.user.empresaId];
 
     if (req.query.date) {
       values.push(req.query.date);
-      filters.push(`a.data_agendamento = $${values.length}`);
+      filters.push("a.data_agendamento = ?");
     }
 
     if (req.query.status) {
       values.push(req.query.status);
-      filters.push(`a.status = $${values.length}`);
+      filters.push("a.status = ?");
     }
 
     const result = await db.query(
       `
         SELECT
           a.id,
-          a.empresa_id AS "companyId",
-          a.servico_id AS "serviceId",
-          s.nome AS "serviceName",
-          a.profissional_id AS "professionalId",
-          p.nome AS "professionalName",
-          a.cliente_nome AS "clientName",
-          a.cliente_telefone AS "clientPhone",
-          a.cliente_email AS "clientEmail",
-          TO_CHAR(a.data_agendamento, 'YYYY-MM-DD') AS "appointmentDate",
-          TO_CHAR(a.horario_inicio, 'HH24:MI') AS "startTime",
-          TO_CHAR(a.horario_fim, 'HH24:MI') AS "endTime",
-          a.duracao_minutos AS "durationMinutes",
-          a.preco AS "price",
+          a.empresa_id AS companyId,
+          a.servico_id AS serviceId,
+          s.nome AS serviceName,
+          a.profissional_id AS professionalId,
+          p.nome AS professionalName,
+          a.cliente_nome AS clientName,
+          a.cliente_telefone AS clientPhone,
+          a.cliente_email AS clientEmail,
+          a.data_agendamento AS appointmentDate,
+          a.horario_inicio AS startTime,
+          a.horario_fim AS endTime,
+          a.duracao_minutos AS durationMinutes,
+          a.preco AS price,
           a.status,
-          a.observacoes AS "notes",
-          a.created_at AS "createdAt",
-          a.updated_at AS "updatedAt"
+          a.observacoes AS notes,
+          a.created_at AS createdAt,
+          a.updated_at AS updatedAt
         FROM agendamentos a
         INNER JOIN servicos s ON s.id = a.servico_id
         INNER JOIN profissionais p ON p.id = a.profissional_id
@@ -136,13 +140,13 @@ async function updateAppointment(req, res, next) {
           cliente_nome,
           cliente_telefone,
           cliente_email,
-          TO_CHAR(data_agendamento, 'YYYY-MM-DD') AS data_agendamento,
-          TO_CHAR(horario_inicio, 'HH24:MI') AS horario_inicio,
-          TO_CHAR(horario_fim, 'HH24:MI') AS horario_fim,
+          data_agendamento,
+          horario_inicio,
+          horario_fim,
           status,
           observacoes
         FROM agendamentos
-        WHERE id = $1 AND empresa_id = $2
+        WHERE id = ? AND empresa_id = ?
       `,
       [appointmentId, req.user.empresaId]
     );
@@ -211,21 +215,20 @@ async function updateAppointment(req, res, next) {
       `
         UPDATE agendamentos
         SET
-          servico_id = $1,
-          profissional_id = $2,
-          cliente_nome = $3,
-          cliente_telefone = $4,
-          cliente_email = $5,
-          data_agendamento = $6,
-          horario_inicio = $7,
-          horario_fim = $8,
-          duracao_minutos = $9,
-          preco = $10,
-          status = $11,
-          observacoes = $12,
-          updated_at = NOW()
-        WHERE id = $13 AND empresa_id = $14
-        RETURNING id
+          servico_id = ?,
+          profissional_id = ?,
+          cliente_nome = ?,
+          cliente_telefone = ?,
+          cliente_email = ?,
+          data_agendamento = ?,
+          horario_inicio = ?,
+          horario_fim = ?,
+          duracao_minutos = ?,
+          preco = ?,
+          status = ?,
+          observacoes = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [
         service.id,
@@ -263,9 +266,8 @@ async function cancelAppointment(req, res, next) {
     const result = await db.query(
       `
         UPDATE agendamentos
-        SET status = 'cancelado', updated_at = NOW()
-        WHERE id = $1 AND empresa_id = $2
-        RETURNING id
+        SET status = 'cancelado', updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND empresa_id = ?
       `,
       [Number(req.params.id), req.user.empresaId]
     );
