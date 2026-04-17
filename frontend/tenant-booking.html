@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda da Empresa</title>
+    <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class="booking-page">
+    <header class="booking-topbar">
+      <div class="container booking-topbar__inner">
+        <div class="booking-brand">
+          <img class="booking-brand__icon" src="/img/Jota.jpeg" alt="Jota" />
+          <div>
+            <span class="eyebrow">Agendamento online</span>
+            <h1 id="bookingTitle">Carregando agenda...</h1>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a class="button secondary" id="tenantAdminEntryLink" href="/">Painel da empresa</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container booking-layout">
+      <section class="booking-main">
+        <section class="booking-hero-card" id="bookingCompanyCard">
+          <h2>Carregando empresa</h2>
+          <p class="muted">Aguarde enquanto os dados do espaco sao carregados.</p>
+        </section>
+
+        <div id="bookingMessage" class="form-message" hidden></div>
+
+        <section class="booking-step-card">
+          <div class="booking-step-card__header">
+            <span class="section-step">1</span>
+            <div>
+              <h2>Escolha o servico</h2>
+              <p id="bookingSubtitle" class="muted">
+                Escolha um servico e reserve um horario disponivel.
+              </p>
+            </div>
+          </div>
+
+          <div id="serviceCards" class="option-card-grid">
+            <p class="empty-state">Carregando servicos...</p>
+          </div>
+
+          <select id="bookingService" required disabled hidden>
+            <option value="">Selecione um servico</option>
+          </select>
+        </section>
+
+        <section class="booking-step-card">
+          <div class="booking-step-card__header">
+            <span class="section-step">2</span>
+            <div>
+              <h2>Escolha o profissional</h2>
+              <p class="muted">Selecione quem vai realizar o atendimento.</p>
+            </div>
+          </div>
+
+          <div id="professionalCards" class="option-card-grid">
+            <p class="empty-state">Carregando profissionais...</p>
+          </div>
+
+          <select id="bookingProfessional" required disabled hidden>
+            <option value="">Selecione um profissional</option>
+          </select>
+        </section>
+
+        <section class="booking-step-card">
+          <div class="booking-step-card__header">
+            <span class="section-step">3</span>
+            <div>
+              <h2>Escolha a data e o horario</h2>
+              <p class="muted">Os horarios aparecem conforme a disponibilidade real.</p>
+            </div>
+          </div>
+
+          <div class="booking-date-row">
+            <label class="booking-date-field">
+              Data do atendimento
+              <input id="bookingDate" type="date" required />
+            </label>
+            <div class="booking-inline-hint">
+              <span id="selectedSlotText">Nenhum horario selecionado.</span>
+            </div>
+          </div>
+
+          <div class="slots-panel booking-slots-panel">
+            <div class="slots-header">
+              <h3>Horarios disponiveis</h3>
+              <p class="muted">Toque para selecionar um horario.</p>
+            </div>
+            <div id="slotList" class="slot-grid">
+              <p class="empty-state">Escolha servico, profissional e data.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="booking-step-card">
+          <div class="booking-step-card__header">
+            <span class="section-step">4</span>
+            <div>
+              <h2>Seus dados</h2>
+              <p class="muted">Preencha os dados para finalizar o agendamento.</p>
+            </div>
+          </div>
+
+          <form id="bookingForm" class="form-grid booking-form-grid">
+            <input type="hidden" name="selectedSlot" />
+
+            <label>
+              Nome do cliente
+              <input type="text" name="clientName" placeholder="Seu nome" required />
+            </label>
+
+            <label>
+              Telefone
+              <input type="text" name="clientPhone" placeholder="(11) 99999-9999" required />
+            </label>
+
+            <label>
+              E-mail
+              <input type="email" name="clientEmail" placeholder="cliente@email.com" />
+            </label>
+
+            <label class="field-span">
+              Observacoes
+              <textarea name="notes" rows="3" placeholder="Informacoes extras"></textarea>
+            </label>
+
+            <div class="booking-submit-wrap field-span">
+              <button class="button primary booking-submit" type="submit">
+                Confirmar agendamento
+              </button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <aside class="booking-sidebar">
+        <div class="booking-summary-card">
+          <span class="eyebrow">Resumo do agendamento</span>
+          <h2>Revise sua selecao</h2>
+
+          <div class="booking-summary-list">
+            <div class="booking-summary-item">
+              <span>Empresa</span>
+              <strong id="summaryCompany">Carregando...</strong>
+            </div>
+            <div class="booking-summary-item">
+              <span>Servico</span>
+              <strong id="summaryService">Nao selecionado</strong>
+            </div>
+            <div class="booking-summary-item">
+              <span>Profissional</span>
+              <strong id="summaryProfessional">Nao selecionado</strong>
+            </div>
+            <div class="booking-summary-item">
+              <span>Data</span>
+              <strong id="summaryDate">Nao selecionada</strong>
+            </div>
+            <div class="booking-summary-item">
+              <span>Horario</span>
+              <strong id="summaryTime">Nao selecionado</strong>
+            </div>
+            <div class="booking-summary-item">
+              <span>Valor</span>
+              <strong id="summaryPrice">--</strong>
+            </div>
+          </div>
+
+          <div class="booking-summary-note">
+            <p>
+              Selecione o servico, o profissional, a data e o horario para liberar o
+              agendamento com total clareza no celular e no computador.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="/js/api.js" defer></script>
+    <script src="/js/utils.js" defer></script>
+    <script src="/js/tenant-booking.js" defer></script>
+  </body>
+</html>

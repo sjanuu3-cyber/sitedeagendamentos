@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal de Espacos</title>
+    <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="hero portal-hero">
+      <div class="container hero-content portal-hero-content">
+        <div class="portal-hero-copy">
+          <span class="eyebrow">Portal multiempresa</span>
+          <h1>Seu cliente agenda no seu proprio link</h1>
+          <p class="hero-text">
+            Você cria o espaco da empresa uma vez. Depois, sua equipe usa so o
+            painel do proprio tenant e seus clientes acessam apenas a agenda da
+            sua marca.
+          </p>
+          <div class="portal-mini-points">
+            <span>Link exclusivo por empresa</span>
+            <span>Painel proprio</span>
+            <span>Agenda publica para clientes</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="/criar-espaco">Criar meu espaco</a>
+            <a class="button secondary" href="#acessoEspaco">Entrar no meu espaco</a>
+          </div>
+        </div>
+
+        <aside class="hero-card portal-preview-card">
+          <span class="share-space-tag">Exemplo de espaco</span>
+          <h2>studio-bela</h2>
+          <p class="muted">
+            O portal fica so para entrada. O uso diario acontece nos links da
+            propria empresa.
+          </p>
+
+          <div class="portal-preview-list">
+            <div class="portal-preview-item">
+              <span>Agenda publica</span>
+              <code>/espaco/studio-bela</code>
+            </div>
+            <div class="portal-preview-item">
+              <span>Login da empresa</span>
+              <code>/espaco/studio-bela/login</code>
+            </div>
+            <div class="portal-preview-item">
+              <span>Painel admin</span>
+              <code>/espaco/studio-bela/admin</code>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main class="container portal-shell">
+      <section class="portal-actions-grid">
+        <article class="panel portal-action-card">
+          <div class="section-heading">
+            <span class="section-step">1</span>
+            <div>
+              <h2>Criar um novo espaco</h2>
+              <p>Ideal para cadastrar uma nova empresa na plataforma.</p>
+            </div>
+          </div>
+
+          <div class="portal-link-stack">
+            <span><strong>Agenda:</strong> /espaco/studio-bela</span>
+            <span><strong>Login:</strong> /espaco/studio-bela/login</span>
+            <span><strong>Admin:</strong> /espaco/studio-bela/admin</span>
+          </div>
+
+          <div class="hero-actions">
+            <a class="button primary" href="/criar-espaco">Abrir cadastro</a>
+          </div>
+        </article>
+
+        <article class="panel portal-action-card" id="acessoEspaco">
+          <div class="section-heading">
+            <span class="section-step">2</span>
+            <div>
+              <h2>Entrar em um espaco existente</h2>
+              <p>Digite o slug da empresa e escolha para onde deseja ir.</p>
+            </div>
+          </div>
+
+          <div id="portalMessage" class="form-message" hidden></div>
+
+          <form id="spaceAccessForm" class="form-grid">
+            <label>
+              Slug do espaco
+              <input
+                type="text"
+                name="slug"
+                placeholder="studio-bela"
+                autocomplete="off"
+                required
+              />
+            </label>
+
+            <div class="inline-actions">
+              <button class="button primary" type="submit" data-target="booking">
+                Abrir agenda publica
+              </button>
+              <button class="button secondary" type="submit" data-target="login">
+                Entrar no painel
+              </button>
+            </div>
+          </form>
+        </article>
+      </section>
+
+      <section class="panel panel-wide portal-flow-panel">
+        <div class="section-heading">
+          <span class="section-step">3</span>
+          <div>
+            <h2>Como funciona na pratica</h2>
+            <p>Mais simples para a empresa e mais direto para o cliente final.</p>
+          </div>
+        </div>
+
+        <div class="portal-flow-grid">
+          <article class="portal-flow-card">
+            <span class="portal-flow-number">01</span>
+            <h3>A empresa cria o espaco</h3>
+            <p>Define nome, slug e faz o primeiro login administrativo.</p>
+          </article>
+
+          <article class="portal-flow-card">
+            <span class="portal-flow-number">02</span>
+            <h3>Recebe links proprios</h3>
+            <p>Ganham vida a agenda publica, o login e o admin do tenant.</p>
+          </article>
+
+          <article class="portal-flow-card">
+            <span class="portal-flow-number">03</span>
+            <h3>Cliente agenda direto</h3>
+            <p>O cliente acessa so a pagina daquela empresa, sem passar pelo portal.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/api.js" defer></script>
+    <script src="/js/utils.js" defer></script>
+    <script src="/js/portal.js" defer></script>
+  </body>
+</html>

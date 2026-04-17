@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel da Empresa</title>
+    <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <header class="dashboard-hero">
+      <div class="container dashboard-hero-content">
+        <div>
+          <span class="eyebrow">Painel administrativo</span>
+          <h1 id="adminCompanyName">Carregando empresa...</h1>
+          <p id="adminCompanyMeta" class="hero-text">
+            Gerencie serviços, profissionais e agendamentos do seu tenant.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a id="publicBookingLink" class="button secondary" href="/">Ver página pública</a>
+          <button id="logoutButton" class="button primary" type="button">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container dashboard-layout">
+      <section class="panel panel-wide">
+        <div class="section-heading">
+          <span class="section-step">0</span>
+          <div>
+            <h2>Seu Espaco Online</h2>
+            <p>Estes sao os links da sua empresa. O principal para clientes e a agenda publica.</p>
+          </div>
+        </div>
+
+        <div id="shareSpaceMessage" class="form-message" hidden></div>
+
+        <div class="share-space-grid">
+          <article class="share-space-card share-space-card--highlight">
+            <span class="share-space-tag">Link para clientes</span>
+            <h3>Agenda publica da empresa</h3>
+            <p>Compartilhe este link com seus clientes para eles escolherem servico, profissional, data e horario.</p>
+            <code id="publicSpaceUrl" class="share-space-url">Carregando...</code>
+            <div class="share-space-actions">
+              <a id="publicSpaceOpen" class="button primary" href="/" target="_blank" rel="noreferrer">
+                Abrir agenda
+              </a>
+              <button id="publicSpaceCopy" class="button secondary" type="button">
+                Copiar link
+              </button>
+            </div>
+          </article>
+
+          <article class="share-space-card">
+            <span class="share-space-tag">Uso interno</span>
+            <h3>Login da empresa</h3>
+            <p>Use este link para entrar no painel da sua empresa no futuro.</p>
+            <code id="loginSpaceUrl" class="share-space-url">Carregando...</code>
+            <div class="share-space-actions">
+              <a id="loginSpaceOpen" class="button secondary" href="/" target="_blank" rel="noreferrer">
+                Abrir login
+              </a>
+              <button id="loginSpaceCopy" class="button ghost" type="button">
+                Copiar link
+              </button>
+            </div>
+          </article>
+
+          <article class="share-space-card">
+            <span class="share-space-tag">Painel atual</span>
+            <h3>Admin da empresa</h3>
+            <p>Este e o endereco completo do painel administrativo do seu espaco.</p>
+            <code id="adminSpaceUrl" class="share-space-url">Carregando...</code>
+            <div class="share-space-actions">
+              <button id="adminSpaceCopy" class="button ghost" type="button">
+                Copiar link
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <span class="section-step">1</span>
+          <div>
+            <h2>Serviços</h2>
+            <p>Cadastre nome, duração e preço de cada atendimento.</p>
+          </div>
+        </div>
+
+        <div id="serviceMessage" class="form-message" hidden></div>
+
+        <form id="serviceForm" class="form-grid">
+          <input type="hidden" name="id" />
+
+          <label>
+            Nome do serviço
+            <input type="text" name="name" placeholder="Corte masculino" required />
+          </label>
+
+          <label>
+            Duração (minutos)
+            <input type="number" name="durationMinutes" min="1" step="1" placeholder="45" required />
+          </label>
+
+          <label>
+            Preço
+            <input type="number" name="price" min="0" step="0.01" placeholder="50.00" required />
+          </label>
+
+          <label class="field-span">
+            Descrição
+            <textarea name="description" rows="3" placeholder="Detalhes do serviço"></textarea>
+          </label>
+
+          <div class="inline-actions">
+            <button class="button primary" type="submit">Salvar serviço</button>
+            <button id="resetServiceForm" class="button ghost" type="button">Limpar</button>
+          </div>
+        </form>
+
+        <div id="serviceList" class="stack-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <span class="section-step">2</span>
+          <div>
+            <h2>Profissionais</h2>
+            <p>Defina o cadastro e a disponibilidade semanal.</p>
+          </div>
+        </div>
+
+        <div id="professionalMessage" class="form-message" hidden></div>
+
+        <form id="professionalForm" class="form-grid">
+          <input type="hidden" name="id" />
+
+          <label>
+            Nome
+            <input type="text" name="name" placeholder="Profissional responsável" required />
+          </label>
+
+          <label>
+            Especialidade
+            <input type="text" name="specialty" placeholder="Barbeiro, manicure, dentista..." />
+          </label>
+
+          <label>
+            E-mail
+            <input type="email" name="email" placeholder="profissional@email.com" />
+          </label>
+
+          <label>
+            Telefone
+            <input type="text" name="phone" placeholder="(11) 99999-9999" />
+          </label>
+
+          <div class="availability-box field-span">
+            <h3>Disponibilidade semanal</h3>
+            <p class="muted">
+              Use o formato <strong>09:00-12:00, 13:00-18:00</strong>. Deixe vazio para dia fechado.
+            </p>
+
+            <div class="availability-grid">
+              <label><span>Domingo</span><input data-day="0" data-day-schedule type="text" placeholder="Fechado" /></label>
+              <label><span>Segunda</span><input data-day="1" data-day-schedule type="text" placeholder="09:00-18:00" /></label>
+              <label><span>Terça</span><input data-day="2" data-day-schedule type="text" placeholder="09:00-18:00" /></label>
+              <label><span>Quarta</span><input data-day="3" data-day-schedule type="text" placeholder="09:00-18:00" /></label>
+              <label><span>Quinta</span><input data-day="4" data-day-schedule type="text" placeholder="09:00-18:00" /></label>
+              <label><span>Sexta</span><input data-day="5" data-day-schedule type="text" placeholder="09:00-18:00" /></label>
+              <label><span>Sábado</span><input data-day="6" data-day-schedule type="text" placeholder="09:00-14:00" /></label>
+            </div>
+          </div>
+
+          <div class="inline-actions">
+            <button class="button primary" type="submit">Salvar profissional</button>
+            <button id="resetProfessionalForm" class="button ghost" type="button">Limpar</button>
+          </div>
+        </form>
+
+        <div id="professionalList" class="stack-list"></div>
+      </section>
+
+      <section class="panel panel-wide">
+        <div class="section-heading">
+          <span class="section-step">3</span>
+          <div>
+            <h2>Agendamentos</h2>
+            <p>Visualize, edite ou cancele agendamentos da sua empresa.</p>
+          </div>
+        </div>
+
+        <div id="appointmentMessage" class="form-message" hidden></div>
+
+        <div class="form-grid form-grid-3">
+          <label>
+            Filtrar por data
+            <input id="appointmentFilterDate" type="date" />
+          </label>
+
+          <label>
+            Filtrar por status
+            <select id="appointmentFilterStatus">
+              <option value="">Todos</option>
+              <option value="agendado">Agendado</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="concluido">Concluído</option>
+            </select>
+          </label>
+
+          <div class="inline-actions align-end">
+            <button id="reloadAppointments" class="button secondary" type="button">Atualizar lista</button>
+          </div>
+        </div>
+
+        <div id="appointmentList" class="stack-list"></div>
+
+        <div class="subpanel">
+          <h3>Editar agendamento</h3>
+          <form id="appointmentForm" class="form-grid">
+            <input type="hidden" name="id" />
+
+            <label>
+              Serviço
+              <select name="serviceId" required></select>
+            </label>
+
+            <label>
+              Profissional
+              <select name="professionalId" required></select>
+            </label>
+
+            <label>
+              Status
+              <select name="status" required>
+                <option value="agendado">Agendado</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="concluido">Concluído</option>
+              </select>
+            </label>
+
+            <label>
+              Data
+              <input type="date" name="appointmentDate" required />
+            </label>
+
+            <label>
+              Horário
+              <input type="time" name="startTime" required />
+            </label>
+
+            <label>
+              Cliente
+              <input type="text" name="clientName" required />
+            </label>
+
+            <label>
+              Telefone
+              <input type="text" name="clientPhone" required />
+            </label>
+
+            <label>
+              E-mail
+              <input type="email" name="clientEmail" />
+            </label>
+
+            <label class="field-span">
+              Observações
+              <textarea name="notes" rows="3"></textarea>
+            </label>
+
+            <div class="inline-actions">
+              <button class="button primary" type="submit">Salvar agendamento</button>
+              <button id="resetAppointmentForm" class="button ghost" type="button">Limpar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/api.js" defer></script>
+    <script src="/js/utils.js" defer></script>
+    <script src="/js/admin-space.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login do Espaco</title>
+    <link rel="icon" type="image/jpeg" href="/img/Jota.jpeg" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container hero-content">
+        <div>
+          <span class="eyebrow">Login do painel</span>
+          <h1 id="tenantLoginTitle">Carregando espaco...</h1>
+          <p id="tenantLoginSubtitle" class="hero-text">
+            Use o e-mail e a senha do administrador da empresa.
+          </p>
+        </div>
+        <div class="hero-card">
+          <h2>Entradas do espaco</h2>
+          <ul class="feature-list">
+            <li id="tenantBookingUrl">Agenda publica</li>
+            <li id="tenantAdminUrl">Painel administrativo</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="container single-column">
+      <section class="panel">
+        <div class="section-heading">
+          <span class="section-step">1</span>
+          <div>
+            <h2>Entrar no painel da empresa</h2>
+            <p>Apos o login, a empresa permanece no proprio espaco.</p>
+          </div>
+        </div>
+
+        <div id="loginMessage" class="form-message" hidden></div>
+
+        <form id="loginForm" class="form-grid">
+          <label>
+            E-mail
+            <input type="email" name="email" placeholder="admin@empresa.com" required />
+          </label>
+
+          <label>
+            Senha
+            <input type="password" name="password" placeholder="Sua senha" required />
+          </label>
+
+          <div class="inline-actions">
+            <button class="button primary" type="submit">Entrar no painel</button>
+            <a class="button secondary" id="goToBookingLink" href="/">Ver agenda publica</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="/js/api.js" defer></script>
+    <script src="/js/utils.js" defer></script>
+    <script src="/js/tenant-login.js" defer></script>
+  </body>
+</html>

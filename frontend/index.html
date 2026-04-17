@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda Multiempresa</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container hero-content">
+        <div>
+          <span class="eyebrow">Plataforma SaaS multi-tenant</span>
+          <h1>Agenda online para barbearia, manicure, salão e odontologia</h1>
+          <p class="hero-text">
+            Uma única plataforma para múltiplas empresas, com painel próprio,
+            cadastro de serviços, profissionais, disponibilidade semanal e
+            agendamento online com validação de conflitos.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#bookingSection">Agendar como cliente</a>
+            <a class="button secondary" href="/admin">Abrir painel admin</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2>O que já está pronto</h2>
+          <ul class="feature-list">
+            <li>Cadastro e login por empresa</li>
+            <li>Isolamento de dados por `empresa_id`</li>
+            <li>CRUD de serviços e profissionais</li>
+            <li>Horários disponíveis por dia da semana</li>
+            <li>Agendamento público com verificação de disponibilidade</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-grid">
+      <section class="panel">
+        <div class="section-heading">
+          <span class="section-step">1</span>
+          <div>
+            <h2>Cadastro de empresa</h2>
+            <p>Crie a empresa e o primeiro usuário administrador.</p>
+          </div>
+        </div>
+
+        <div id="registerMessage" class="form-message" hidden></div>
+
+        <form id="registerForm" class="form-grid">
+          <label>
+            Nome da empresa
+            <input type="text" name="companyName" placeholder="Studio Exemplo" required />
+          </label>
+
+          <label>
+            Slug público
+            <input type="text" name="companySlug" placeholder="studio-exemplo" />
+          </label>
+
+          <label>
+            Segmento
+            <select name="segment" required>
+              <option value="barbearia">Barbearia</option>
+              <option value="manicure">Manicure</option>
+              <option value="salao">Salão</option>
+              <option value="odontologia">Odontologia</option>
+              <option value="outro">Outro</option>
+            </select>
+          </label>
+
+          <label>
+            E-mail da empresa
+            <input type="email" name="companyEmail" placeholder="contato@empresa.com" required />
+          </label>
+
+          <label>
+            Telefone
+            <input type="text" name="phone" placeholder="(11) 99999-9999" />
+          </label>
+
+          <label>
+            Nome do administrador
+            <input type="text" name="adminName" placeholder="Responsável" required />
+          </label>
+
+          <label>
+            E-mail de login
+            <input type="email" name="adminEmail" placeholder="admin@empresa.com" required />
+          </label>
+
+          <label>
+            Senha
+            <input type="password" name="password" placeholder="Mínimo de 6 caracteres" required />
+          </label>
+
+          <button class="button primary" type="submit">Cadastrar e entrar</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <span class="section-step">2</span>
+          <div>
+            <h2>Login da empresa</h2>
+            <p>Entre no painel administrativo para gerenciar seus dados.</p>
+          </div>
+        </div>
+
+        <div id="loginMessage" class="form-message" hidden></div>
+
+        <form id="loginForm" class="form-grid">
+          <label>
+            E-mail
+            <input type="email" name="email" placeholder="admin@empresa.com" required />
+          </label>
+
+          <label>
+            Senha
+            <input type="password" name="password" placeholder="Sua senha" required />
+          </label>
+
+          <button class="button primary" type="submit">Entrar no painel</button>
+        </form>
+      </section>
+
+      <section class="panel panel-wide" id="bookingSection">
+        <div class="section-heading">
+          <span class="section-step">3</span>
+          <div>
+            <h2>Agendamento online do cliente</h2>
+            <p>Escolha empresa, serviço, profissional, data e horário disponível.</p>
+          </div>
+        </div>
+
+        <div id="bookingMessage" class="form-message" hidden></div>
+
+        <div class="form-grid form-grid-4">
+          <label>
+            Empresa
+            <select id="bookingCompany" required>
+              <option value="">Selecione uma empresa</option>
+            </select>
+          </label>
+
+          <label>
+            Serviço
+            <select id="bookingService" required disabled>
+              <option value="">Selecione um serviço</option>
+            </select>
+          </label>
+
+          <label>
+            Profissional
+            <select id="bookingProfessional" required disabled>
+              <option value="">Selecione um profissional</option>
+            </select>
+          </label>
+
+          <label>
+            Data
+            <input id="bookingDate" type="date" required />
+          </label>
+        </div>
+
+        <div id="bookingCompanyCard" class="info-card">
+          <h3>Selecione uma empresa</h3>
+          <p>Ao escolher a empresa, os serviços e profissionais ativos serão carregados.</p>
+        </div>
+
+        <div class="slots-panel">
+          <div class="slots-header">
+            <h3>Horários disponíveis</h3>
+            <p id="selectedSlotText">Nenhum horário selecionado.</p>
+          </div>
+          <div id="slotList" class="slot-grid">
+            <p class="empty-state">Escolha empresa, serviço, profissional e data.</p>
+          </div>
+        </div>
+
+        <form id="bookingForm" class="form-grid">
+          <input type="hidden" name="selectedSlot" />
+
+          <label>
+            Nome do cliente
+            <input type="text" name="clientName" placeholder="Seu nome" required />
+          </label>
+
+          <label>
+            Telefone
+            <input type="text" name="clientPhone" placeholder="(11) 99999-9999" required />
+          </label>
+
+          <label>
+            E-mail
+            <input type="email" name="clientEmail" placeholder="cliente@email.com" />
+          </label>
+
+          <label class="field-span">
+            Observações
+            <textarea name="notes" rows="3" placeholder="Ex.: primeira consulta, preferência de horário..."></textarea>
+          </label>
+
+          <button class="button primary" type="submit">Confirmar agendamento</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="/js/api.js" defer></script>
+    <script src="/js/utils.js" defer></script>
+    <script src="/js/index.js" defer></script>
+  </body>
+</html>
