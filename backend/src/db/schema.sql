@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS agendamentos (
   data_agendamento DATE NOT NULL,
   horario_inicio TIME NOT NULL,
   horario_fim TIME NOT NULL,
+  inicio_em DATETIME NULL,
+  fim_em DATETIME NULL,
   duracao_minutos INT NOT NULL,
   preco DECIMAL(10, 2) NOT NULL,
   status ENUM('agendado', 'cancelado', 'concluido') NOT NULL DEFAULT 'agendado',
@@ -82,6 +84,7 @@ CREATE TABLE IF NOT EXISTS agendamentos (
   PRIMARY KEY (id),
   KEY idx_agendamentos_empresa_id (empresa_id),
   KEY idx_agendamentos_data_profissional (empresa_id, profissional_id, data_agendamento),
+  KEY idx_agendamentos_profissional_periodo (empresa_id, profissional_id, inicio_em, fim_em),
   CONSTRAINT fk_agendamentos_empresa
     FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE,
   CONSTRAINT fk_agendamentos_servico

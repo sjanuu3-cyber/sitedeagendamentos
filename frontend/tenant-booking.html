@@ -86,8 +86,8 @@
             <button class="booking-progress-step" type="button" data-step-indicator="4">
               <span class="booking-progress-step__number">4</span>
               <span class="booking-progress-step__copy">
-                <strong>Horario</strong>
-                <small>Selecione um horario</small>
+                <strong id="progressStepFourTitle">Horario</strong>
+                <small id="progressStepFourSubtitle">Selecione um horario</small>
               </span>
             </button>
             <button class="booking-progress-step" type="button" data-step-indicator="5">
@@ -170,8 +170,8 @@
               <section class="booking-screen" data-step-screen="4">
                 <div class="booking-screen__header">
                   <span class="booking-screen__label">Etapa 4</span>
-                  <h2>Escolha um horario disponivel</h2>
-                  <p class="muted">
+                  <h2 id="bookingStepFourHeading">Escolha um horario disponivel</h2>
+                  <p id="bookingStepFourText" class="muted">
                     Os horarios abaixo sao exibidos em tempo real com base na agenda atual.
                   </p>
                 </div>
@@ -179,8 +179,8 @@
                 <div class="booking-availability-card">
                   <div class="slots-header booking-availability-card__header">
                     <div>
-                      <h3>Horarios livres</h3>
-                      <p class="muted">Toque em um horario para avancar.</p>
+                      <h3 id="bookingAvailabilityHeading">Horarios livres</h3>
+                      <p id="bookingAvailabilityText" class="muted">Toque em um horario para avancar.</p>
                     </div>
                     <span class="booking-availability-badge">Disponivel em tempo real</span>
                   </div>
@@ -225,7 +225,7 @@
                         <strong id="summaryDate">Nao selecionada</strong>
                       </div>
                       <div class="booking-summary-item">
-                        <span>Horario</span>
+                        <span id="summaryTimeLabel">Horario</span>
                         <strong id="summaryTime">Nao selecionado</strong>
                       </div>
                       <div class="booking-summary-item">
@@ -295,7 +295,7 @@
                   <strong id="summaryDateAside">Nao selecionada</strong>
                 </div>
                 <div class="booking-summary-item">
-                  <span>Horario</span>
+                  <span id="summaryTimeLabelAside">Horario</span>
                   <strong id="summaryTimeAside">Nao selecionado</strong>
                 </div>
                 <div class="booking-summary-item">

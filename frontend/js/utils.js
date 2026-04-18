@@ -26,6 +26,37 @@
     });
   }
 
+  function formatDuration(value) {
+    const minutes = Number(value || 0);
+
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return "0 min";
+    }
+
+    if (minutes % 1440 === 0) {
+      const days = minutes / 1440;
+      return days === 1 ? "1 dia" : `${days} dias`;
+    }
+
+    if (minutes >= 1440) {
+      const days = Math.floor(minutes / 1440);
+      const remainingHours = Math.floor((minutes % 1440) / 60);
+
+      if (remainingHours === 0) {
+        return days === 1 ? "1 dia" : `${days} dias`;
+      }
+
+      return `${days}d ${remainingHours}h`;
+    }
+
+    if (minutes % 60 === 0 && minutes >= 60) {
+      const hours = minutes / 60;
+      return hours === 1 ? "1 hora" : `${hours} horas`;
+    }
+
+    return `${minutes} min`;
+  }
+
   function escapeHtml(value) {
     return String(value || "")
       .replaceAll("&", "&amp;")
@@ -150,6 +181,7 @@
     weekDays,
     showMessage,
     formatCurrency,
+    formatDuration,
     escapeHtml,
     todayString,
     buildAvailabilityMap,

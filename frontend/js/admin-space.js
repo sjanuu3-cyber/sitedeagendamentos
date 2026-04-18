@@ -53,6 +53,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const appointmentFilterDate = document.getElementById("appointmentFilterDate");
   const appointmentFilterStatus = document.getElementById("appointmentFilterStatus");
   const reloadAppointmentsButton = document.getElementById("reloadAppointments");
+  const appointmentTimeField = document.getElementById("appointmentTimeField");
+  const appointmentTimeHint = document.getElementById("appointmentTimeHint");
 
   const state = {
     company: null,
@@ -82,6 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   reloadAppointmentsButton.addEventListener("click", loadAppointments);
   appointmentFilterDate.addEventListener("change", loadAppointments);
   appointmentFilterStatus.addEventListener("change", loadAppointments);
+  appointmentForm.elements.serviceId.addEventListener("change", updateAppointmentTimeFieldState);
 
   serviceList.addEventListener("click", handleServiceListActions);
   professionalList.addEventListener("click", handleProfessionalListActions);
@@ -115,6 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderServices();
     renderProfessionals();
     populateAppointmentSelects();
+    updateAppointmentTimeFieldState();
     updateDashboardMetrics();
     await loadAppointments();
   }
@@ -162,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </span>
               <div>
                 <h3>${AppUtils.escapeHtml(service.name)}</h3>
-                <p>${service.durationMinutes} min - ${AppUtils.formatCurrency(service.price)}</p>
+                <p>${AppUtils.formatDuration(service.durationMinutes)} - ${AppUtils.formatCurrency(service.price)}</p>
               </div>
             </div>
             <div class="card-meta">
@@ -228,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               <div>
                 <h3>${AppUtils.escapeHtml(appointment.clientName)}</h3>
                 <p>
-                  ${normalizeDate(appointment.appointmentDate)} as ${appointment.startTime}
+                  ${AppUtils.escapeHtml(formatAppointmentWindow(appointment))}
                   - ${AppUtils.escapeHtml(appointment.serviceName)}
                 </p>
               </div>
@@ -523,7 +527,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.services,
       "Selecione um servico",
       (service) =>
-        `${service.name}${service.active ? "" : " (inativo)"} - ${service.durationMinutes} min`,
+        `${service.name}${service.active ? "" : " (inativo)"} - ${AppUtils.formatDuration(service.durationMinutes)}`,
       serviceId
     );
 
@@ -549,6 +553,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     appointmentForm.elements.clientPhone.value = appointment.clientPhone;
     appointmentForm.elements.clientEmail.value = appointment.clientEmail || "";
     appointmentForm.elements.notes.value = appointment.notes || "";
+    updateAppointmentTimeFieldState();
   }
 
   function resetServiceForm() {
@@ -566,6 +571,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     appointmentForm.reset();
     appointmentForm.elements.id.value = "";
     populateAppointmentSelects();
+    updateAppointmentTimeFieldState();
+  }
+
+  function getSelectedAppointmentService() {
+    return state.services.find(
+      (service) => String(service.id) === String(appointmentForm.elements.serviceId.value)
+    );
+  }
+
+  function updateAppointmentTimeFieldState() {
+    const service = getSelectedAppointmentService();
+    const requiresTimeSelection = service?.requiresTimeSelection !== false;
+
+    appointmentTimeField.hidden = !requiresTimeSelection;
+    appointmentTimeHint.hidden = requiresTimeSelection;
+    appointmentForm.elements.startTime.disabled = !requiresTimeSelection;
+    appointmentForm.elements.startTime.required = requiresTimeSelection;
+
+    if (!requiresTimeSelection) {
+      appointmentForm.elements.startTime.value = "";
+    }
+  }
+
+  function formatAppointmentWindow(appointment) {
+    if (appointment.requiresTimeSelection !== false) {
+      return `${normalizeDate(appointment.appointmentDate)} as ${appointment.startTime}`;
+    }
+
+    const endDate = normalizeDate(appointment.endDate || appointment.appointmentDate);
+
+    if (normalizeDate(appointment.appointmentDate) === endDate) {
+      return `${normalizeDate(appointment.appointmentDate)} (periodo estendido)`;
+    }
+
+    return `${normalizeDate(appointment.appointmentDate)} ate ${endDate}`;
   }
 
   function buildAvailabilitySummary(availability) {
@@ -593,6 +633,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     state.services = data.services;
     renderServices();
     populateAppointmentSelects();
+    updateAppointmentTimeFieldState();
     updateDashboardMetrics();
   }
 

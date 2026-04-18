@@ -1,5 +1,6 @@
 const db = require("../config/database");
 const { AppError } = require("../utils/errors");
+const { buildSchedulingMeta } = require("../utils/scheduling");
 const {
   assertRequiredFields,
   isNonEmptyString,
@@ -18,6 +19,7 @@ function mapService(row) {
     active: toBoolean(row.active),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+    ...buildSchedulingMeta(row.durationMinutes),
   };
 }
 

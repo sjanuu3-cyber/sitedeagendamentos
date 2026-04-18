@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const app = require("./app");
 const db = require("./config/database");
+const { ensureSchema } = require("./db/ensureSchema");
 
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT) || 3000;
@@ -30,6 +31,7 @@ async function shutdown(signal) {
 async function startServer() {
   try {
     await db.query("SELECT 1");
+    await ensureSchema();
 
     server = app.listen(port, host, () => {
       console.log(`Servidor iniciado em http://${host}:${port}`);

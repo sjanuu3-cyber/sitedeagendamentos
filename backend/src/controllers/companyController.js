@@ -1,10 +1,13 @@
 const db = require("../config/database");
 const {
   buildAvailableSlots,
+  buildLongDurationSlot,
   assertScheduleAvailable,
-} = require("../services/availabilityService");
+  getIntervalsForDate,
+  resolveLongDurationQueryWindow,
+} = require("../services/appointmentSchedulingService");
+const { getOverlappingAppointmentsByProfessional } = require("../services/appointmentQueryService");
 const {
-  getAppointmentsByProfessional,
   getCompanyBySlug,
   getProfessionalByCompany,
   getServiceByCompany,
@@ -12,6 +15,7 @@ const {
 const { AppError } = require("../utils/errors");
 const {
   assertRequiredFields,
+  hasRequiredValue,
   isValidDate,
   isValidEmail,
   isValidTime,
@@ -22,6 +26,7 @@ const {
   parseJsonObject,
 } = require("../utils/formatters");
 const { isDateInPast } = require("../utils/time");
+const { buildDayWindow, buildScheduleWindow, buildSchedulingMeta } = require("../utils/scheduling");
 
 function mapCompany(row) {
   return {
@@ -41,6 +46,7 @@ function mapService(row) {
     durationMinutes: row.durationMinutes,
     price: Number(row.price),
     description: row.description,
+    ...buildSchedulingMeta(row.durationMinutes),
   };
 }
 
@@ -66,12 +72,14 @@ function mapAppointment(row) {
     clientPhone: row.clientPhone,
     clientEmail: row.clientEmail,
     appointmentDate: formatDateValue(row.appointmentDate),
+    endDate: formatDateValue(row.endDate || row.appointmentDate),
     startTime: formatTimeValue(row.startTime),
     endTime: formatTimeValue(row.endTime),
     durationMinutes: row.durationMinutes,
     price: Number(row.price),
     status: row.status,
     notes: row.notes,
+    ...buildSchedulingMeta(row.durationMinutes),
   };
 }
 
@@ -166,18 +174,47 @@ async function getAvailability(req, res, next) {
       activeOnly: true,
     });
 
-    const appointments = await getAppointmentsByProfessional(
-      company.id,
-      professional.id,
-      date
-    );
+    const schedulingMeta = buildSchedulingMeta(service.duracao_minutos);
+    let slots = [];
 
-    const slots = buildAvailableSlots({
-      availability: professional.disponibilidade || {},
-      date,
-      duration: service.duracao_minutos,
-      appointments,
-    });
+    if (schedulingMeta.requiresTimeSelection) {
+      const dayWindow = buildDayWindow(date);
+      const appointments = await getOverlappingAppointmentsByProfessional(
+        company.id,
+        professional.id,
+        dayWindow.startDateTime,
+        dayWindow.endDateTime
+      );
+
+      slots = buildAvailableSlots({
+        availability: professional.disponibilidade || {},
+        date,
+        duration: service.duracao_minutos,
+        appointments,
+      });
+    } else {
+      const queryWindow = resolveLongDurationQueryWindow(
+        professional.disponibilidade || {},
+        date,
+        service.duracao_minutos
+      );
+
+      if (queryWindow) {
+        const appointments = await getOverlappingAppointmentsByProfessional(
+          company.id,
+          professional.id,
+          queryWindow.startDateTime,
+          queryWindow.endDateTime
+        );
+
+        slots = buildLongDurationSlot({
+          availability: professional.disponibilidade || {},
+          date,
+          duration: service.duracao_minutos,
+          appointments,
+        });
+      }
+    }
 
     return res.json({
       company: mapCompany(company),
@@ -186,6 +223,7 @@ async function getAvailability(req, res, next) {
         name: service.nome,
         durationMinutes: service.duracao_minutos,
         price: Number(service.preco),
+        ...schedulingMeta,
       },
       professional: {
         id: professional.id,
@@ -193,6 +231,7 @@ async function getAvailability(req, res, next) {
       },
       date,
       slots,
+      ...schedulingMeta,
     });
   } catch (error) {
     next(error);
@@ -216,13 +255,12 @@ async function createAppointment(req, res, next) {
       "serviceId",
       "professionalId",
       "appointmentDate",
-      "startTime",
       "clientName",
       "clientPhone",
     ]);
 
-    if (!isValidDate(appointmentDate) || !isValidTime(startTime)) {
-      throw new AppError("Data ou horário inválidos.", 422);
+    if (!isValidDate(appointmentDate)) {
+      throw new AppError("Data invalida.", 422);
     }
 
     if (clientEmail && !isValidEmail(clientEmail)) {
@@ -241,13 +279,55 @@ async function createAppointment(req, res, next) {
       activeOnly: true,
     });
 
-    const appointments = await getAppointmentsByProfessional(
-      company.id,
-      professional.id,
-      appointmentDate
-    );
+    const schedulingMeta = buildSchedulingMeta(service.duracao_minutos);
 
-    const { endTime } = assertScheduleAvailable({
+    if (schedulingMeta.requiresTimeSelection && !hasRequiredValue(startTime)) {
+      throw new AppError("Escolha um horario para concluir o agendamento.", 422);
+    }
+
+    if (hasRequiredValue(startTime) && !isValidTime(startTime)) {
+      throw new AppError("Horario invalido.", 422);
+    }
+
+    let appointments = [];
+
+    if (!schedulingMeta.requiresTimeSelection && !hasRequiredValue(startTime)) {
+      const queryWindow = resolveLongDurationQueryWindow(
+        professional.disponibilidade || {},
+        appointmentDate,
+        service.duracao_minutos
+      );
+
+      if (queryWindow) {
+        appointments = await getOverlappingAppointmentsByProfessional(
+          company.id,
+          professional.id,
+          queryWindow.startDateTime,
+          queryWindow.endDateTime
+        );
+      }
+    } else {
+      const provisionalStartTime =
+        startTime ||
+        getIntervalsForDate(professional.disponibilidade || {}, appointmentDate)[0]?.start;
+
+      if (provisionalStartTime) {
+        const candidateWindow = buildScheduleWindow(
+          appointmentDate,
+          provisionalStartTime,
+          service.duracao_minutos
+        );
+
+        appointments = await getOverlappingAppointmentsByProfessional(
+          company.id,
+          professional.id,
+          candidateWindow.startDateTime,
+          candidateWindow.endDateTime
+        );
+      }
+    }
+
+    const schedule = assertScheduleAvailable({
       availability: professional.disponibilidade || {},
       date: appointmentDate,
       startTime,
@@ -267,12 +347,14 @@ async function createAppointment(req, res, next) {
           data_agendamento,
           horario_inicio,
           horario_fim,
+          inicio_em,
+          fim_em,
           duracao_minutos,
           preco,
           status,
           observacoes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'agendado', ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'agendado', ?)
       `,
       [
         company.id,
@@ -282,8 +364,10 @@ async function createAppointment(req, res, next) {
         clientPhone.trim(),
         clientEmail?.trim() || null,
         appointmentDate,
-        startTime,
-        endTime,
+        schedule.startTime,
+        schedule.endTime,
+        schedule.startDateTime,
+        schedule.endDateTime,
         service.duracao_minutos,
         service.preco,
         notes?.trim() || null,
@@ -302,8 +386,9 @@ async function createAppointment(req, res, next) {
         clientPhone: clientPhone.trim(),
         clientEmail: clientEmail?.trim() || null,
         appointmentDate,
-        startTime,
-        endTime,
+        endDate: schedule.endDate,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
         durationMinutes: service.duracao_minutos,
         price: service.preco,
         status: "agendado",

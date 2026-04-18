@@ -37,6 +37,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const stepBackButton = document.getElementById("stepBackButton");
   const stepNextButton = document.getElementById("stepNextButton");
   const bookingMobileBar = document.getElementById("bookingMobileBar");
+  const progressStepFourTitle = document.getElementById("progressStepFourTitle");
+  const progressStepFourSubtitle = document.getElementById("progressStepFourSubtitle");
+  const bookingStepFourHeading = document.getElementById("bookingStepFourHeading");
+  const bookingStepFourText = document.getElementById("bookingStepFourText");
+  const bookingAvailabilityHeading = document.getElementById("bookingAvailabilityHeading");
+  const bookingAvailabilityText = document.getElementById("bookingAvailabilityText");
   const stepScreens = Array.from(document.querySelectorAll("[data-step-screen]"));
   const stepIndicators = Array.from(document.querySelectorAll("[data-step-indicator]"));
   const bookingStageCard = document.querySelector(".booking-stage-card");
@@ -68,6 +74,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     ],
   };
 
+  const summaryLabelTargets = {
+    time: [
+      document.getElementById("summaryTimeLabel"),
+      document.getElementById("summaryTimeLabelAside"),
+    ],
+  };
+
   const stepMeta = {
     1: {
       title: "Escolha um servico",
@@ -96,9 +109,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
   };
 
+  function getStepMeta(step = state.currentStep) {
+    const selectedService = getSelectedService();
+
+    if (selectedService?.requiresTimeSelection === false) {
+      if (step === 3) {
+        return {
+          title: "Escolha a data de inicio",
+          cta: "Revisar reserva",
+          hint: "Selecione o dia em que o periodo do servico deve comecar.",
+        };
+      }
+
+      if (step === 4) {
+        return {
+          title: "Periodo reservado automaticamente",
+          cta: "Revisar reserva",
+          hint: "Servicos longos nao precisam de escolha manual de horario.",
+        };
+      }
+    }
+
+    return stepMeta[step];
+  }
+
   const state = {
     catalog: null,
     selectedSlot: "",
+    selectedSlotDetails: null,
     currentStep: 1,
     userPickedDate: false,
     lastAvailabilityContext: null,
@@ -132,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       data.services,
       "Selecione um servico",
       (service) =>
-        `${service.name} - ${service.durationMinutes} min - ${AppUtils.formatCurrency(service.price)}`
+        `${service.name} - ${AppUtils.formatDuration(service.durationMinutes)} - ${AppUtils.formatCurrency(service.price)}`
     );
     AppUtils.populateSelect(
       bookingProfessional,
@@ -259,7 +297,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <button class="option-card option-card--service" type="button" data-service-id="${service.id}">
             <span class="option-card__status">Disponivel</span>
             <span class="option-card__title">${AppUtils.escapeHtml(service.name)}</span>
-            <span class="option-card__meta">${service.durationMinutes} min</span>
+            <span class="option-card__meta">${AppUtils.escapeHtml(AppUtils.formatDuration(service.durationMinutes))}</span>
             <span class="option-card__description">${AppUtils.escapeHtml(
               service.description || "Atendimento com reserva imediata."
             )}</span>
@@ -319,6 +357,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function handleServiceSelection(serviceId) {
     bookingService.value = serviceId;
     state.selectedSlot = "";
+    state.selectedSlotDetails = null;
     bookingForm.elements.selectedSlot.value = "";
     updateServiceSelectionUI();
     updateSummary();
@@ -336,6 +375,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function handleProfessionalSelection(professionalId) {
     bookingProfessional.value = professionalId;
     state.selectedSlot = "";
+    state.selectedSlotDetails = null;
     bookingForm.elements.selectedSlot.value = "";
     updateProfessionalSelectionUI();
     updateQuickDateAvailability();
@@ -375,6 +415,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedService && selectedProfessional && bookingDate.value
         ? formatHumanDate(bookingDate.value)
         : "Nao selecionada";
+    const timeLabel = selectedService?.requiresTimeSelection === false ? "Periodo" : "Horario";
+    const timeValue = buildSelectedSlotSummary();
 
     setText(summaryTargets.service, selectedService ? selectedService.name : "Nao selecionado");
     setText(
@@ -382,7 +424,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedProfessional ? selectedProfessional.name : "Nao selecionado"
     );
     setText(summaryTargets.date, selectedDate);
-    setText(summaryTargets.time, state.selectedSlot || "Nao selecionado");
+    setText(summaryTargets.time, timeValue);
+    setText(summaryLabelTargets.time, timeLabel);
     setText(
       summaryTargets.price,
       selectedService ? AppUtils.formatCurrency(selectedService.price) : "--"
@@ -428,6 +471,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function handleDateSelection(dateValue) {
     bookingDate.value = dateValue;
     state.selectedSlot = "";
+    state.selectedSlotDetails = null;
     bookingForm.elements.selectedSlot.value = "";
     updateQuickDateSelectionUI();
     updateSummary();
@@ -492,6 +536,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function refreshAvailability() {
     AppUtils.showMessage(bookingMessage, "");
     state.selectedSlot = "";
+    state.selectedSlotDetails = null;
     state.lastAvailabilityContext = null;
     bookingForm.elements.selectedSlot.value = "";
     updateSelectionHint();
@@ -534,7 +579,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         `/public/companies/${slug}/availability?${params.toString()}`
       );
 
-      renderSlots(data.slots, context);
+      state.lastAvailabilityContext = {
+        ...context,
+        service: {
+          ...context.service,
+          requiresTimeSelection: data.requiresTimeSelection,
+        },
+      };
+
+      if (
+        data.requiresTimeSelection === false &&
+        data.slots?.[0] &&
+        (state.userPickedDate || state.currentStep >= 4)
+      ) {
+        state.selectedSlot = data.slots[0].startTime;
+        state.selectedSlotDetails = data.slots[0];
+        bookingForm.elements.selectedSlot.value = data.slots[0].startTime;
+        state.currentStep = 5;
+      }
+
+      renderSlots(data.slots, state.lastAvailabilityContext);
+      updateSummary();
+      updateSelectionHint();
     } catch (error) {
       slotList.innerHTML = '<p class="empty-state">Nao foi possivel carregar os horarios.</p>';
       AppUtils.showMessage(bookingMessage, error.message, "error");
@@ -545,8 +611,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!slots || slots.length === 0) {
       slotList.innerHTML = `
         <div class="booking-empty-state">
-          <strong>Nenhum horario liberado para esta etapa.</strong>
+          <strong>${
+            context.service?.requiresTimeSelection === false
+              ? "Nenhum periodo disponivel para esta etapa."
+              : "Nenhum horario liberado para esta etapa."
+          }</strong>
           <p>${AppUtils.escapeHtml(buildNoSlotsMessage(context))}</p>
+        </div>
+      `;
+      updateSelectionHint();
+      return;
+    }
+
+    if (context.service?.requiresTimeSelection === false) {
+      const slot = slots[0];
+
+      slotList.innerHTML = `
+        <div class="booking-empty-state">
+          <strong>Periodo disponivel para esta data.</strong>
+          <p>${AppUtils.escapeHtml(buildLongDurationSummary(slot, context.date))}</p>
         </div>
       `;
       updateSelectionHint();
@@ -567,6 +650,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     slotList.querySelectorAll("[data-slot]").forEach((button) => {
       button.addEventListener("click", () => {
         state.selectedSlot = button.dataset.slot;
+        state.selectedSlotDetails = slots.find((slot) => slot.startTime === button.dataset.slot) || null;
         bookingForm.elements.selectedSlot.value = button.dataset.slot;
         state.currentStep = 5;
         updateSummary();
@@ -583,21 +667,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateSelectionHint() {
+    if (isDateOnlyService() && state.selectedSlotDetails) {
+      selectedSlotText.textContent = `Periodo reservado: ${buildLongDurationSummary(
+        state.selectedSlotDetails,
+        bookingDate.value
+      )}`;
+      return;
+    }
+
     if (state.selectedSlot) {
       selectedSlotText.textContent = `Horario selecionado: ${state.selectedSlot}`;
       return;
     }
 
     if (bookingDate.value && bookingProfessional.value && bookingService.value) {
-      selectedSlotText.textContent = `Data escolhida: ${formatHumanDate(bookingDate.value)}. Agora escolha um horario.`;
+      selectedSlotText.textContent = isDateOnlyService()
+        ? `Data escolhida: ${formatHumanDate(bookingDate.value)}. O periodo sera reservado automaticamente.`
+        : `Data escolhida: ${formatHumanDate(bookingDate.value)}. Agora escolha um horario.`;
       return;
     }
 
-    selectedSlotText.textContent = "Selecione o dia para liberar os horarios disponiveis.";
+    selectedSlotText.textContent = isDateOnlyService()
+      ? "Selecione o dia para definir o inicio do periodo reservado."
+      : "Selecione o dia para liberar os horarios disponiveis.";
   }
 
   function updateFlowUI() {
     const maxUnlockedStep = getMaxUnlockedStep();
+    const currentStepMeta = getStepMeta();
 
     stepScreens.forEach((screen) => {
       const step = Number(screen.dataset.stepScreen);
@@ -615,23 +712,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     progressFill.style.width = `${Math.max(((state.currentStep - 1) / 4) * 100, 6)}%`;
     mobileStepLabel.textContent = `Etapa ${state.currentStep} de 5`;
-    mobileStepStatus.textContent = stepMeta[state.currentStep].title;
+    mobileStepStatus.textContent = currentStepMeta.title;
     bookingStepHint.textContent = buildStepHint();
     bookingMobileBar.hidden = state.currentStep === 5;
 
     stepBackButton.hidden = state.currentStep === 1;
-    stepNextButton.textContent = stepMeta[state.currentStep].cta;
+    stepNextButton.textContent = currentStepMeta.cta;
     stepNextButton.disabled = !canAdvanceFromCurrentStep();
     stepNextButton.classList.toggle("is-loading", state.submitting);
+
+    progressStepFourTitle.textContent = isDateOnlyService() ? "Periodo" : "Horario";
+    progressStepFourSubtitle.textContent = isDateOnlyService()
+      ? "Reserva automatica"
+      : "Selecione um horario";
+    bookingStepFourHeading.textContent = isDateOnlyService()
+      ? "Periodo reservado automaticamente"
+      : "Escolha um horario disponivel";
+    bookingStepFourText.textContent = isDateOnlyService()
+      ? "Servicos longos usam a data escolhida como inicio da reserva, sem exigir horario manual."
+      : "Os horarios abaixo sao exibidos em tempo real com base na agenda atual.";
+    bookingAvailabilityHeading.textContent = isDateOnlyService()
+      ? "Periodo da reserva"
+      : "Horarios livres";
+    bookingAvailabilityText.textContent = isDateOnlyService()
+      ? "Ao escolher a data de inicio, o sistema reserva todo o periodo do servico."
+      : "Toque em um horario para avancar.";
   }
 
-  function handleNextAction() {
+  async function handleNextAction() {
     if (state.currentStep === 5) {
       bookingForm.requestSubmit();
       return;
     }
 
     if (!canAdvanceFromCurrentStep()) {
+      return;
+    }
+
+    if (state.currentStep === 3 && isDateOnlyService()) {
+      state.userPickedDate = true;
+      await refreshAvailability();
+      state.currentStep = state.selectedSlot ? 5 : 4;
+      updateFlowUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
@@ -700,7 +823,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return buildNoSlotsMessage(state.lastAvailabilityContext);
     }
 
-    return stepMeta[state.currentStep].hint;
+    return getStepMeta().hint;
   }
 
   function getSelectedService() {
@@ -713,6 +836,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     return state.catalog?.professionals?.find(
       (professional) => String(professional.id) === String(bookingProfessional.value)
     );
+  }
+
+  function isDateOnlyService() {
+    return getSelectedService()?.requiresTimeSelection === false;
+  }
+
+  function buildLongDurationSummary(slot, startDate, options = {}) {
+    const { verbose = false } = options;
+    const resolvedStartDate = startDate || bookingDate.value;
+    const resolvedEndDate = slot?.endDate || resolvedStartDate;
+
+    if (!resolvedStartDate) {
+      return "Periodo ainda nao definido.";
+    }
+
+    if (verbose) {
+      if (resolvedStartDate === resolvedEndDate) {
+        return `Inicio em ${formatHumanDate(resolvedStartDate)}.`;
+      }
+
+      return `De ${formatHumanDate(resolvedStartDate)} ate ${formatHumanDate(resolvedEndDate)}.`;
+    }
+
+    if (resolvedStartDate === resolvedEndDate) {
+      return formatCompactDate(resolvedStartDate);
+    }
+
+    return `${formatCompactDate(resolvedStartDate)} ate ${formatCompactDate(resolvedEndDate)}`;
+  }
+
+  function buildSelectedSlotSummary() {
+    if (isDateOnlyService()) {
+      return state.selectedSlotDetails
+        ? buildLongDurationSummary(state.selectedSlotDetails, bookingDate.value)
+        : "Nao selecionado";
+    }
+
+    return state.selectedSlot || "Nao selecionado";
+  }
+
+  function buildAppointmentSuccessMessage(appointment) {
+    if (appointment.requiresTimeSelection === false) {
+      return `Agendamento confirmado. ${buildLongDurationSummary(
+        { endDate: appointment.endDate },
+        appointment.appointmentDate,
+        { verbose: true }
+      )}`;
+    }
+
+    return `Agendamento confirmado para ${formatHumanDate(appointment.appointmentDate)} as ${appointment.startTime}.`;
   }
 
   function hasAnyAvailability(availability) {
@@ -757,13 +930,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const serviceDuration = Number(service?.durationMinutes || 0);
+
+    if (service?.requiresTimeSelection === false) {
+      return `Esse servico ocupa ${AppUtils.formatDuration(serviceDuration)} e esta data de inicio nao ficou livre para todo o periodo.${nextDatesText}`;
+    }
+
     const largestInterval = Math.max(
       ...intervals.map((interval) => timeRangeInMinutes(interval.start, interval.end)),
       0
     );
 
     if (serviceDuration > 0 && largestInterval < serviceDuration) {
-      return `Esse servico dura ${serviceDuration} min e nao cabe nas faixas de ${formatWeekDayLabel(date)}.${nextDatesText}`;
+      return `Esse servico dura ${AppUtils.formatDuration(serviceDuration)} e nao cabe nas faixas de ${formatWeekDayLabel(date)}.${nextDatesText}`;
     }
 
     return `Nao ha horarios livres em ${formatHumanDate(date)}.${nextDatesText}`;
@@ -864,7 +1042,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!state.selectedSlot) {
       AppUtils.showMessage(
         bookingMessage,
-        "Escolha um horario disponivel antes de confirmar.",
+        isDateOnlyService()
+          ? "Escolha uma data de inicio disponivel antes de confirmar."
+          : "Escolha um horario disponivel antes de confirmar.",
         "error"
       );
       state.currentStep = 4;
@@ -901,7 +1081,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       state.lastAppointment = data.appointment;
       AppUtils.showMessage(
         bookingMessage,
-        `Agendamento confirmado para ${formatHumanDate(data.appointment.appointmentDate)} as ${data.appointment.startTime}.`,
+        buildAppointmentSuccessMessage(data.appointment),
         "success"
       );
 
@@ -921,6 +1101,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderSuccessState(appointment) {
     const selectedService = getSelectedService();
     const selectedProfessional = getSelectedProfessional();
+    const whenLabel =
+      appointment.requiresTimeSelection === false
+        ? buildLongDurationSummary(
+            { endDate: appointment.endDate },
+            appointment.appointmentDate,
+            { verbose: true }
+          )
+        : `${formatHumanDate(appointment.appointmentDate)} as ${appointment.startTime}`;
 
     bookingSuccessSummary.innerHTML = `
       <div class="booking-success-summary__item">
@@ -937,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
       <div class="booking-success-summary__item">
         <span>Quando</span>
-        <strong>${AppUtils.escapeHtml(formatHumanDate(appointment.appointmentDate))} as ${AppUtils.escapeHtml(appointment.startTime)}</strong>
+        <strong>${AppUtils.escapeHtml(whenLabel)}</strong>
       </div>
       <div class="booking-success-summary__item">
         <span>Cliente</span>
@@ -958,6 +1146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     bookingForm.elements.selectedSlot.value = "";
     bookingDate.value = AppUtils.todayString();
     state.selectedSlot = "";
+    state.selectedSlotDetails = null;
     state.currentStep = 1;
     state.userPickedDate = false;
     state.lastAvailabilityContext = null;
