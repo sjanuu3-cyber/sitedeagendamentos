@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const bookingMobileBar = document.getElementById("bookingMobileBar");
   const stepScreens = Array.from(document.querySelectorAll("[data-step-screen]"));
   const stepIndicators = Array.from(document.querySelectorAll("[data-step-indicator]"));
+  const bookingStageCard = document.querySelector(".booking-stage-card");
 
   const summaryTargets = {
     company: [
@@ -325,6 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (bookingService.value) {
       state.currentStep = 2;
+      scrollToStage();
     }
 
     await refreshAvailability();
@@ -343,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (bookingProfessional.value) {
       state.currentStep = 3;
+      scrollToStage();
     }
 
     await refreshAvailability();
@@ -432,6 +435,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (bookingDate.value) {
       state.currentStep = 4;
+      scrollToStage();
     }
 
     await refreshAvailability();
@@ -573,7 +577,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         updateFlowUI();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        scrollToStage();
       });
     });
   }
@@ -847,6 +851,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     elements.filter(Boolean).forEach((element) => {
       element.textContent = value;
     });
+  }
+
+  function scrollToStage() {
+    bookingStageCard?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function handleAppointmentSubmit(event) {

@@ -19,19 +19,25 @@
         </div>
 
         <div class="hero-actions">
-          <a class="button secondary" id="goToBookingLink" href="/">Ver agenda publica</a>
+          <a class="button secondary" id="goToBookingLink" data-tenant-booking-link href="/">Ver agenda publica</a>
         </div>
       </div>
     </header>
 
     <main class="container saas-shell">
-      <section class="saas-hero saas-hero--compact">
+      <section class="saas-hero saas-hero--compact auth-hero">
         <div class="saas-hero__copy">
           <span class="eyebrow">Painel privado</span>
           <h1 id="tenantLoginTitle">Carregando espaco...</h1>
           <p id="tenantLoginSubtitle" class="hero-text">
             Use o e-mail e a senha do administrador da empresa.
           </p>
+
+          <div class="micro-trust-bar">
+            <span>Acesso direto ao tenant</span>
+            <span>Sem etapas desnecessarias</span>
+            <span>Continuacao do espaco da marca</span>
+          </div>
         </div>
 
         <aside class="saas-hero__preview">
@@ -51,33 +57,54 @@
         </aside>
       </section>
 
-      <section class="saas-card saas-card--wide login-card">
-        <div class="section-heading">
-          <span class="section-step">1</span>
-          <div>
-            <h2>Entrar no painel da empresa</h2>
-            <p>Apos o login, voce permanece dentro do proprio espaco da empresa.</p>
+      <section class="auth-layout">
+        <section class="saas-card saas-card--wide login-card auth-card">
+          <div class="section-heading">
+            <span class="section-step">1</span>
+            <div>
+              <h2>Entrar no painel da empresa</h2>
+              <p>Apos o login, voce continua no proprio espaco da empresa sem voltar ao portal.</p>
+            </div>
           </div>
-        </div>
 
-        <div id="loginMessage" class="form-message" hidden></div>
+          <div id="loginMessage" class="form-message" hidden></div>
 
-        <form id="loginForm" class="form-grid login-form-card">
-          <label>
-            E-mail
-            <input type="email" name="email" placeholder="admin@empresa.com" required />
-          </label>
+          <form id="loginForm" class="form-grid login-form-card">
+            <label>
+              E-mail
+              <input type="email" name="email" placeholder="admin@empresa.com" required />
+            </label>
 
-          <label>
-            Senha
-            <input type="password" name="password" placeholder="Sua senha" required />
-          </label>
+            <label>
+              Senha
+              <input type="password" name="password" placeholder="Sua senha" required />
+            </label>
 
-          <div class="inline-actions">
-            <button class="button primary" type="submit">Entrar no painel</button>
-            <a class="button secondary" href="/">Voltar ao portal</a>
-          </div>
-        </form>
+            <div class="inline-actions">
+              <button class="button primary" type="submit">Entrar no painel</button>
+              <a class="button secondary" href="/">Voltar ao portal</a>
+            </div>
+          </form>
+        </section>
+
+        <aside class="auth-support-grid">
+          <article class="saas-card auth-support-card">
+            <span class="saas-preview-card__tag">Depois do login</span>
+            <ul class="saas-bullet-list">
+              <li>Gerenciar servicos e profissionais</li>
+              <li>Editar ou cancelar agendamentos</li>
+              <li>Copiar os links oficiais do espaco</li>
+            </ul>
+          </article>
+
+          <article class="saas-card auth-support-card auth-support-card--accent">
+            <span class="saas-preview-card__tag">Acesso rapido</span>
+            <p>
+              Se voce quer apenas reservar como cliente, use a agenda publica da empresa.
+            </p>
+            <a class="button secondary" data-tenant-booking-link href="/">Abrir agenda publica</a>
+          </article>
+        </aside>
       </section>
     </main>
 

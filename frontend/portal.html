@@ -26,95 +26,106 @@
     </header>
 
     <main class="container saas-shell">
-      <section class="saas-hero">
-        <div class="saas-hero__copy">
-          <span class="eyebrow">Multiempresa, simples e elegante</span>
-          <h1>Cada negocio com seu proprio espaco de agendamento</h1>
+      <section class="saas-hero portal-hero-premium">
+        <div class="saas-hero__copy portal-hero-panel">
+          <span class="eyebrow">Experiencia premium para reservas</span>
+          <h1>Seu negocio com fluxo de agendamento no nivel de app</h1>
           <p class="hero-text">
-            Crie a empresa uma vez e entregue um link profissional para os clientes
-            agendarem direto na pagina da marca, com painel proprio para a equipe.
+            Crie uma vez e entregue uma experiencia clara, sofisticada e direta:
+            agenda publica, login proprio e painel administrativo no mesmo espaco da marca.
           </p>
 
-          <div class="portal-mini-points saas-points">
-            <span>Agenda publica exclusiva</span>
-            <span>Painel proprio por empresa</span>
-            <span>Fluxo premium no celular</span>
+          <div class="micro-trust-bar">
+            <span>Fluxo guiado</span>
+            <span>Links proprios por empresa</span>
+            <span>Alta conversao no celular</span>
           </div>
 
           <div class="hero-actions">
-            <a class="button primary" href="/criar-espaco">Quero criar meu espaco</a>
-            <a class="button secondary" href="#acessoEspaco">Ja tenho um espaco</a>
+            <a class="button primary" href="/criar-espaco">Criar meu espaco</a>
+            <a class="button secondary" href="#acessoEspaco">Entrar em um espaco</a>
           </div>
         </div>
 
-        <aside class="saas-hero__preview">
-          <article class="saas-preview-card saas-preview-card--dark">
-            <span class="saas-preview-card__tag">Exemplo real</span>
-            <h2>studio-bela</h2>
+        <aside class="saas-hero__preview portal-preview-stack">
+          <article class="saas-preview-card saas-preview-card--dark portal-preview-display">
+            <span class="saas-preview-card__tag">Como a empresa opera</span>
+            <h2>Um link publico. Um login privado. Um painel completo.</h2>
             <p>
-              A empresa nao usa o portal no dia a dia. Ela opera apenas dentro do
-              proprio tenant.
+              Depois da criacao, a empresa sai do portal e passa a trabalhar
+              sempre dentro do proprio tenant.
             </p>
 
-            <div class="saas-preview-stack">
-              <div>
-                <span>Agenda</span>
+            <div class="app-route-preview">
+              <div class="app-route-preview__item">
+                <span>Agenda publica</span>
                 <code>/espaco/studio-bela</code>
               </div>
-              <div>
-                <span>Login</span>
+              <div class="app-route-preview__item">
+                <span>Login da empresa</span>
                 <code>/espaco/studio-bela/login</code>
               </div>
-              <div>
-                <span>Admin</span>
+              <div class="app-route-preview__item">
+                <span>Painel admin</span>
                 <code>/espaco/studio-bela/admin</code>
               </div>
             </div>
           </article>
 
-          <article class="saas-preview-card">
-            <span class="saas-preview-card__tag">Ideal para</span>
+          <article class="saas-preview-card portal-proof-card">
+            <span class="saas-preview-card__tag">Feito para</span>
             <ul class="saas-bullet-list">
-              <li>Barbearias e saloes</li>
-              <li>Clinicas e consultorios</li>
-              <li>Negocios com equipe e horarios</li>
+              <li>Barbearias, saloes e studios</li>
+              <li>Clinicas, consultorios e equipes com agenda</li>
+              <li>Operacao simples para a empresa e para o cliente final</li>
             </ul>
           </article>
         </aside>
       </section>
 
-      <section class="saas-card-grid">
-        <article class="saas-card saas-card--highlight">
+      <section class="portal-decision-grid">
+        <article class="saas-card portal-choice-card portal-choice-card--primary">
           <div class="section-heading">
             <span class="section-step">1</span>
             <div>
               <h2>Criar um novo espaco</h2>
-              <p>Cadastre a empresa e entre direto no painel profissional dela.</p>
+              <p>Para empresas que ainda vao configurar a propria agenda.</p>
             </div>
           </div>
 
-          <div class="saas-inline-preview">
-            <span>Agenda publica, login e painel ficam prontos na hora.</span>
+          <p class="portal-choice-card__lead">
+            Voce cadastra a empresa uma vez e ja sai com links prontos para compartilhar,
+            login privado e painel administrativo.
+          </p>
+
+          <div class="saas-inline-preview portal-choice-preview">
+            <span>Entrega imediata</span>
             <strong>/espaco/seu-slug</strong>
           </div>
 
+          <ul class="portal-choice-list">
+            <li>Cadastro guiado em poucos passos</li>
+            <li>Agenda publica pronta para clientes</li>
+            <li>Painel proprio para servicos, equipe e agenda</li>
+          </ul>
+
           <div class="hero-actions">
-            <a class="button primary" href="/criar-espaco">Abrir cadastro</a>
+            <a class="button primary" href="/criar-espaco">Comecar agora</a>
           </div>
         </article>
 
-        <article class="saas-card" id="acessoEspaco">
+        <article class="saas-card portal-choice-card" id="acessoEspaco">
           <div class="section-heading">
             <span class="section-step">2</span>
             <div>
               <h2>Entrar em um espaco existente</h2>
-              <p>Digite o slug da empresa e escolha se vai abrir a agenda ou o login.</p>
+              <p>Use o slug da empresa para abrir a agenda publica ou o login privado.</p>
             </div>
           </div>
 
           <div id="portalMessage" class="form-message" hidden></div>
 
-          <form id="spaceAccessForm" class="form-grid">
+          <form id="spaceAccessForm" class="form-grid portal-access-form">
             <label>
               Slug do espaco
               <input
@@ -125,6 +136,10 @@
                 required
               />
             </label>
+
+            <p class="form-inline-note">
+              Digite o endereco curto da empresa e escolha apenas o proximo passo.
+            </p>
 
             <div class="inline-actions">
               <button class="button primary" type="submit" data-target="booking">
@@ -138,12 +153,12 @@
         </article>
       </section>
 
-      <section class="saas-card saas-card--wide">
+      <section class="saas-card saas-card--wide portal-flow-panel--premium">
         <div class="section-heading">
           <span class="section-step">3</span>
           <div>
-            <h2>Como a plataforma funciona</h2>
-            <p>Um fluxo simples para a empresa e direto para o cliente final.</p>
+            <h2>Como a experiencia funciona</h2>
+            <p>O portal serve para entrar. A operacao real acontece no espaco da empresa.</p>
           </div>
         </div>
 
@@ -151,19 +166,19 @@
           <article class="saas-flow-card">
             <span class="portal-flow-number">01</span>
             <h3>A empresa cria o espaco</h3>
-            <p>Define marca, slug e login administrativo no primeiro acesso.</p>
+            <p>Define marca, slug e acesso administrativo com um onboarding curto e claro.</p>
           </article>
 
           <article class="saas-flow-card">
             <span class="portal-flow-number">02</span>
             <h3>Recebe links proprios</h3>
-            <p>A agenda publica e o painel passam a viver no link exclusivo da empresa.</p>
+            <p>A agenda publica, o login e o admin passam a viver dentro do tenant da marca.</p>
           </article>
 
           <article class="saas-flow-card">
             <span class="portal-flow-number">03</span>
             <h3>Cliente agenda direto</h3>
-            <p>Sem portal no meio do caminho: o cliente entra direto no espaco daquela marca.</p>
+            <p>Sem desvio ou poluicao: o cliente entra no link da empresa e agenda em poucos toques.</p>
           </article>
         </div>
       </section>

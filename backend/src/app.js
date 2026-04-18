@@ -51,8 +51,16 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(frontendPath, "portal.html"));
 });
 
+app.get(["/index.html", "/portal.html"], (req, res) => {
+  res.redirect(302, "/");
+});
+
 app.get("/criar-espaco", (req, res) => {
   res.sendFile(path.join(frontendPath, "create-space.html"));
+});
+
+app.get("/create-space.html", (req, res) => {
+  res.redirect(302, "/criar-espaco");
 });
 
 app.get("/espaco/:slug", (req, res) => {
@@ -65,6 +73,10 @@ app.get("/espaco/:slug/login", (req, res) => {
 
 app.get(["/admin", "/espaco/:slug/admin"], (req, res) => {
   res.sendFile(path.join(frontendPath, "admin.html"));
+});
+
+app.get("/admin.html", (req, res) => {
+  res.redirect(302, "/admin");
 });
 
 app.use("/img", express.static(sharedImagesPath));

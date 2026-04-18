@@ -28,101 +28,281 @@
       <section class="saas-hero saas-hero--compact">
         <div class="saas-hero__copy">
           <span class="eyebrow">Configuracao inicial</span>
-          <h1>Cadastre a empresa e deixe o espaco pronto para operar</h1>
+          <h1>Crie o espaco da empresa com um fluxo guiado e sem atrito</h1>
           <p class="hero-text">
             Em poucos minutos sua empresa recebe agenda publica, login proprio e painel
-            admin no mesmo ambiente da marca.
+            administrativo no mesmo ambiente da marca.
           </p>
+
+          <div class="micro-trust-bar">
+            <span>Etapas claras</span>
+            <span>Links criados na hora</span>
+            <span>Pronto para compartilhar</span>
+          </div>
         </div>
 
         <aside class="saas-hero__preview">
-          <article class="saas-preview-card">
-            <span class="saas-preview-card__tag">Entrega imediata</span>
-            <ul class="saas-bullet-list">
-              <li>Link publico para clientes</li>
-              <li>Login exclusivo da empresa</li>
-              <li>Painel com servicos, equipe e agenda</li>
-            </ul>
+          <article class="saas-preview-card saas-preview-card--dark">
+            <span class="saas-preview-card__tag">O que sera criado</span>
+            <div class="app-route-preview">
+              <div class="app-route-preview__item">
+                <span>Agenda publica</span>
+                <code id="previewBookingPath">/espaco/seu-espaco</code>
+              </div>
+              <div class="app-route-preview__item">
+                <span>Login da empresa</span>
+                <code id="previewLoginPath">/espaco/seu-espaco/login</code>
+              </div>
+              <div class="app-route-preview__item">
+                <span>Painel admin</span>
+                <code id="previewAdminPath">/espaco/seu-espaco/admin</code>
+              </div>
+            </div>
           </article>
         </aside>
       </section>
 
-      <section class="saas-card saas-card--wide onboarding-card">
-        <div class="section-heading">
-          <span class="section-step">1</span>
-          <div>
-            <h2>Informacoes da empresa</h2>
-            <p>O slug define o endereco publico do espaco. Depois voce entra direto no painel.</p>
-          </div>
-        </div>
-
-        <div id="registerMessage" class="form-message" hidden></div>
-
-        <form id="registerForm" class="form-grid form-grid-2 onboarding-form">
-          <div class="onboarding-block field-span">
-            <h3>Marca e espaco</h3>
-            <div class="form-grid form-grid-2">
-              <label>
-                Nome da empresa
-                <input type="text" name="companyName" placeholder="Studio Bela" required />
-              </label>
-
-              <label>
-                Slug publico
-                <input type="text" name="companySlug" placeholder="studio-bela" required />
-              </label>
-
-              <label>
-                Segmento
-                <select name="segment" required>
-                  <option value="barbearia">Barbearia</option>
-                  <option value="manicure">Manicure</option>
-                  <option value="salao">Salao</option>
-                  <option value="odontologia">Odontologia</option>
-                  <option value="outro">Outro</option>
-                </select>
-              </label>
-
-              <label>
-                E-mail da empresa
-                <input type="email" name="companyEmail" placeholder="contato@empresa.com" required />
-              </label>
-
-              <label>
-                Telefone
-                <input type="text" name="phone" placeholder="(11) 99999-9999" />
-              </label>
+      <section class="flow-layout">
+        <section class="saas-card saas-card--wide onboarding-card">
+          <div class="section-heading">
+            <span class="section-step">1</span>
+            <div>
+              <h2>Criar espaco da empresa</h2>
+              <p>Vamos por etapas para deixar tudo claro e profissional desde o primeiro acesso.</p>
             </div>
           </div>
 
-          <div class="onboarding-block field-span">
-            <h3>Administrador inicial</h3>
-            <div class="form-grid form-grid-2">
-              <label>
-                Nome do administrador
-                <input type="text" name="adminName" placeholder="Responsavel" required />
-              </label>
+          <div id="registerMessage" class="form-message" hidden></div>
 
-              <label>
-                E-mail de login
-                <input type="email" name="adminEmail" placeholder="admin@empresa.com" required />
-              </label>
-
-              <label>
-                Senha
-                <input type="password" name="password" placeholder="Minimo de 6 caracteres" required />
-              </label>
+          <form id="registerForm" class="form-grid onboarding-flow-form">
+            <div class="flow-progress" aria-label="Progresso da criacao do espaco">
+              <div class="flow-progress__step is-active" data-flow-progress="1">
+                <span>1</span>
+                <strong>Marca</strong>
+                <small>Dados da empresa</small>
+              </div>
+              <div class="flow-progress__step" data-flow-progress="2">
+                <span>2</span>
+                <strong>Acesso</strong>
+                <small>Administrador inicial</small>
+              </div>
+              <div class="flow-progress__step" data-flow-progress="3">
+                <span>3</span>
+                <strong>Revisao</strong>
+                <small>Conferir antes de criar</small>
+              </div>
             </div>
-          </div>
 
-          <div class="onboarding-footer field-span">
-            <div class="onboarding-footer__note">
-              <strong>O que acontece depois?</strong>
-              <span>Voce sera redirecionado direto para o painel do espaco criado.</span>
+            <section class="flow-step is-active" data-flow-step="1">
+              <div class="flow-step__header">
+                <span class="booking-screen__label">Etapa 1</span>
+                <div>
+                  <h3>Marca e endereco do espaco</h3>
+                  <p class="muted">
+                    Defina a identidade da empresa e o endereco que seus clientes vao acessar.
+                  </p>
+                </div>
+              </div>
+
+              <div class="onboarding-block">
+                <div class="form-grid form-grid-2">
+                  <label>
+                    Nome da empresa
+                    <input type="text" name="companyName" placeholder="Studio Bela" required />
+                  </label>
+
+                  <label>
+                    Slug publico
+                    <input type="text" name="companySlug" placeholder="studio-bela" />
+                  </label>
+
+                  <label>
+                    Segmento
+                    <select name="segment" required>
+                      <option value="barbearia">Barbearia</option>
+                      <option value="manicure">Manicure</option>
+                      <option value="salao">Salao</option>
+                      <option value="odontologia">Odontologia</option>
+                      <option value="outro">Outro</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    E-mail da empresa
+                    <input type="email" name="companyEmail" placeholder="contato@empresa.com" required />
+                  </label>
+
+                  <label class="field-span">
+                    Telefone
+                    <input type="text" name="phone" placeholder="(11) 99999-9999" />
+                  </label>
+                </div>
+
+                <p class="form-inline-note">
+                  Se preferir, deixe o slug em branco. Ele pode ser gerado automaticamente a partir do nome.
+                </p>
+              </div>
+
+              <div class="flow-actions">
+                <span class="flow-actions__hint">Leva menos de 2 minutos.</span>
+                <button class="button primary" type="button" data-next-step="2">
+                  Continuar
+                </button>
+              </div>
+            </section>
+
+            <section class="flow-step" data-flow-step="2" hidden>
+              <div class="flow-step__header">
+                <span class="booking-screen__label">Etapa 2</span>
+                <div>
+                  <h3>Administrador inicial</h3>
+                  <p class="muted">
+                    Este acesso sera usado para entrar no painel da empresa logo depois do cadastro.
+                  </p>
+                </div>
+              </div>
+
+              <div class="onboarding-block">
+                <div class="form-grid form-grid-2">
+                  <label>
+                    Nome do administrador
+                    <input type="text" name="adminName" placeholder="Responsavel" required />
+                  </label>
+
+                  <label>
+                    E-mail de login
+                    <input type="email" name="adminEmail" placeholder="admin@empresa.com" required />
+                  </label>
+
+                  <label class="field-span">
+                    Senha
+                    <input type="password" name="password" placeholder="Minimo de 6 caracteres" required />
+                  </label>
+                </div>
+
+                <p class="form-inline-note">
+                  Depois da criacao, voce entra direto no painel do tenant com este acesso.
+                </p>
+              </div>
+
+              <div class="flow-actions">
+                <button class="button ghost" type="button" data-back-step="1">Voltar</button>
+                <button class="button primary" type="button" data-next-step="3">
+                  Revisar espaco
+                </button>
+              </div>
+            </section>
+
+            <section class="flow-step" data-flow-step="3" hidden>
+              <div class="flow-step__header">
+                <span class="booking-screen__label">Etapa 3</span>
+                <div>
+                  <h3>Resumo antes de criar</h3>
+                  <p class="muted">
+                    Confira os dados principais e os links que vao nascer com este cadastro.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flow-review-grid">
+                <article class="flow-review-card">
+                  <span>Empresa</span>
+                  <strong id="reviewCompanyName">Nao informado</strong>
+                </article>
+
+                <article class="flow-review-card">
+                  <span>Segmento</span>
+                  <strong id="reviewCompanySegment">Nao informado</strong>
+                </article>
+
+                <article class="flow-review-card">
+                  <span>E-mail da empresa</span>
+                  <strong id="reviewCompanyEmail">Nao informado</strong>
+                </article>
+
+                <article class="flow-review-card">
+                  <span>Telefone</span>
+                  <strong id="reviewCompanyPhone">Nao informado</strong>
+                </article>
+
+                <article class="flow-review-card">
+                  <span>Administrador</span>
+                  <strong id="reviewAdminName">Nao informado</strong>
+                </article>
+
+                <article class="flow-review-card">
+                  <span>Login</span>
+                  <strong id="reviewAdminEmail">Nao informado</strong>
+                </article>
+              </div>
+
+              <div class="flow-links-preview">
+                <div>
+                  <span>Agenda publica</span>
+                  <code id="reviewPublicUrl">/espaco/seu-espaco</code>
+                </div>
+                <div>
+                  <span>Login da empresa</span>
+                  <code id="reviewLoginUrl">/espaco/seu-espaco/login</code>
+                </div>
+                <div>
+                  <span>Painel administrativo</span>
+                  <code id="reviewAdminUrl">/espaco/seu-espaco/admin</code>
+                </div>
+              </div>
+
+              <div class="onboarding-footer">
+                <div class="onboarding-footer__note">
+                  <strong>O que acontece depois?</strong>
+                  <span>Voce sera redirecionado direto para o painel do espaco criado.</span>
+                </div>
+
+                <div class="inline-actions">
+                  <button class="button ghost" type="button" data-back-step="2">Voltar</button>
+                  <button class="button primary" type="submit">Criar espaco e entrar</button>
+                </div>
+              </div>
+            </section>
+          </form>
+        </section>
+
+        <aside class="flow-sidebar">
+          <article class="saas-card flow-sidebar-card">
+            <span class="saas-preview-card__tag">Preview do espaco</span>
+            <h3>Seu espaco vai nascer com estes acessos</h3>
+            <p class="muted">
+              Assim que concluir, a empresa ja pode compartilhar a agenda publica e entrar no admin.
+            </p>
+
+            <div class="flow-links-preview flow-links-preview--stack">
+              <div>
+                <span>Slug previsto</span>
+                <strong id="previewSlugValue">seu-espaco</strong>
+              </div>
+              <div>
+                <span>Agenda publica</span>
+                <code id="sidebarBookingUrl">/espaco/seu-espaco</code>
+              </div>
+              <div>
+                <span>Login da empresa</span>
+                <code id="sidebarLoginUrl">/espaco/seu-espaco/login</code>
+              </div>
+              <div>
+                <span>Painel admin</span>
+                <code id="sidebarAdminUrl">/espaco/seu-espaco/admin</code>
+              </div>
             </div>
-            <button class="button primary" type="submit">Criar espaco e entrar</button>
-          </div>
-        </form>
+          </article>
+
+          <article class="saas-card flow-sidebar-card flow-sidebar-card--soft">
+            <span class="saas-preview-card__tag">Depois da criacao</span>
+            <ul class="saas-bullet-list">
+              <li>Cadastrar servicos e profissionais</li>
+              <li>Definir a disponibilidade semanal</li>
+              <li>Compartilhar o link da agenda publica com clientes</li>
+            </ul>
+          </article>
+        </aside>
       </section>
     </main>
 

@@ -212,12 +212,12 @@ Também foram criados índices para melhorar consultas por empresa, profissional
 
 ## 5. Como rodar o projeto
 
-### Passo 1. Criar o banco PostgreSQL
+### Passo 1. Criar o banco MySQL
 
 Exemplo:
 
 ```sql
-CREATE DATABASE multi_tenant_agendamento;
+CREATE DATABASE multi_tenant_agendamento CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### Passo 2. Executar o schema
@@ -225,7 +225,7 @@ CREATE DATABASE multi_tenant_agendamento;
 No terminal:
 
 ```bash
-psql -d multi_tenant_agendamento -f backend/src/db/schema.sql
+mysql -u root -p multi_tenant_agendamento < backend/src/db/schema.sql
 ```
 
 ### Passo 3. Configurar as variáveis de ambiente
@@ -236,7 +236,12 @@ Exemplo:
 
 ```env
 PORT=3000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/multi_tenant_agendamento
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=sua_senha
+DB_NAME=multi_tenant_agendamento
+DB_SSL=false
 JWT_SECRET=troque-esta-chave-por-uma-chave-segura
 JWT_EXPIRES_IN=8h
 CORS_ORIGIN=http://localhost:3000,http://127.0.0.1:3000
@@ -304,7 +309,7 @@ Para este projeto, existem 2 caminhos viaveis:
 Essa e a opcao mais simples para manter o stack exatamente como esta hoje:
 
 - Node.js + Express rodando no servidor
-- PostgreSQL rodando no servidor
+- MySQL rodando no servidor
 - dominio apontando para a VPS
 - HTTPS configurado pela propria infraestrutura da Hostinger
 
@@ -312,7 +317,7 @@ Fluxo recomendado:
 
 1. Subir o projeto para o GitHub
 2. Clonar o repositorio na VPS
-3. Criar o banco PostgreSQL na VPS
+3. Criar o banco MySQL na VPS
 4. Executar `backend/src/db/schema.sql`
 5. Criar `backend/.env` com valores de producao
 6. Instalar dependencias com `npm install` dentro de `backend`
@@ -322,29 +327,33 @@ Exemplo de `.env` de producao:
 
 ```env
 PORT=3000
-DATABASE_URL=postgresql://USUARIO:SENHA@HOST:5432/NOME_DO_BANCO
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=SEU_USUARIO_MYSQL
+DB_PASSWORD=SUA_SENHA_MYSQL
+DB_NAME=SEU_BANCO_MYSQL
 DB_SSL=false
 JWT_SECRET=gere-uma-chave-longa-e-segura
 JWT_EXPIRES_IN=8h
 CORS_ORIGIN=https://seudominio.com,https://www.seudominio.com
 ```
 
-### Opcao B. Hostinger Node.js Web App + banco PostgreSQL externo
+### Opcao B. Hostinger Node.js Web App + banco MySQL externo
 
-Se voce quiser usar o deploy gerenciado da Hostinger para Node.js, o backend pode continuar em Node.js, mas o PostgreSQL precisa ficar fora da hospedagem web tradicional.
+Se voce quiser usar o deploy gerenciado da Hostinger para Node.js, o backend pode continuar em Node.js com um MySQL externo ou com o MySQL do proprio provedor, dependendo do plano.
 
 Nesse caso:
 
 - app Node.js na Hostinger
-- banco PostgreSQL em provedor externo
-- `DATABASE_URL` apontando para esse banco externo
+- banco MySQL em provedor externo
+- `DATABASE_URL` ou `DB_HOST` apontando para esse banco externo
 - `DB_SSL=true` se o provedor exigir SSL
 
 Exemplo:
 
 ```env
 PORT=3000
-DATABASE_URL=postgresql://USUARIO:SENHA@HOST-EXTERNO:5432/NOME_DO_BANCO
+DATABASE_URL=mysql://USUARIO:SENHA@HOST-EXTERNO:3306/NOME_DO_BANCO
 DB_SSL=true
 JWT_SECRET=gere-uma-chave-longa-e-segura
 JWT_EXPIRES_IN=8h
@@ -370,7 +379,7 @@ Como voce vai hospedar em VPS, este e o fluxo ideal para este projeto.
 Instale:
 
 - Node.js 20 ou superior
-- PostgreSQL
+- MySQL
 - Nginx
 - PM2
 - Git
@@ -379,7 +388,7 @@ Exemplo:
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y nginx postgresql postgresql-contrib git
+sudo apt install -y nginx mysql-server git
 sudo npm install -g pm2
 ```
 
@@ -396,17 +405,18 @@ npm install
 Exemplo:
 
 ```bash
-sudo -u postgres psql
-CREATE DATABASE multi_tenant_agendamento;
-CREATE USER agendamento_user WITH ENCRYPTED PASSWORD 'troque-essa-senha';
-GRANT ALL PRIVILEGES ON DATABASE multi_tenant_agendamento TO agendamento_user;
-\q
+sudo mysql
+CREATE DATABASE multi_tenant_agendamento CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'agendamento_user'@'localhost' IDENTIFIED BY 'troque-essa-senha';
+GRANT ALL PRIVILEGES ON multi_tenant_agendamento.* TO 'agendamento_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 Aplicar schema:
 
 ```bash
-psql -h localhost -U agendamento_user -d multi_tenant_agendamento -f src/db/schema.sql
+mysql -u agendamento_user -p multi_tenant_agendamento < src/db/schema.sql
 ```
 
 ### 10.4. Configurar o backend
@@ -419,7 +429,11 @@ Exemplo de producao:
 NODE_ENV=production
 HOST=0.0.0.0
 PORT=3000
-DATABASE_URL=postgresql://agendamento_user:SUA_SENHA@localhost:5432/multi_tenant_agendamento
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=agendamento_user
+DB_PASSWORD=SUA_SENHA
+DB_NAME=multi_tenant_agendamento
 DB_SSL=false
 JWT_SECRET=gere-uma-chave-longa-e-segura
 JWT_EXPIRES_IN=8h

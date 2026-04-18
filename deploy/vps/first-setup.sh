@@ -14,7 +14,7 @@ echo "Atualizando pacotes do sistema..."
 sudo apt update && sudo apt upgrade -y
 
 echo "Instalando dependencias base..."
-sudo apt install -y nginx postgresql postgresql-contrib git curl
+sudo apt install -y nginx mysql-server git curl
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Instalando Node.js 20..."
@@ -41,22 +41,18 @@ cd "${APP_ROOT}/backend"
 echo "Instalando dependencias do backend..."
 npm install
 
-echo "Criando banco e usuario PostgreSQL se necessario..."
-sudo -u postgres psql <<SQL
-DO \$\$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN
-    CREATE ROLE ${DB_USER} LOGIN PASSWORD '${DB_PASSWORD}';
-  END IF;
-END
-\$\$;
+echo "Criando banco e usuario MySQL se necessario..."
+sudo mysql <<SQL
+CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';
+FLUSH PRIVILEGES;
 SQL
 
-sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 || \
-  sudo -u postgres createdb "${DB_NAME}" -O "${DB_USER}"
-
 echo "Aplicando schema..."
-PGPASSWORD="${DB_PASSWORD}" psql -h localhost -U "${DB_USER}" -d "${DB_NAME}" -f src/db/schema.sql
+mysql -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" < src/db/schema.sql
 
 if [ ! -f ".env" ]; then
   echo "Criando .env inicial a partir do exemplo..."

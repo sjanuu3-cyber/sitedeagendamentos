@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const bookingUrl = document.getElementById("tenantBookingUrl");
   const adminUrl = document.getElementById("tenantAdminUrl");
   const bookingLink = document.getElementById("goToBookingLink");
+  const bookingLinks = Array.from(document.querySelectorAll("[data-tenant-booking-link]"));
   const form = document.getElementById("loginForm");
   const message = document.getElementById("loginMessage");
   const session = Api.getSession();
@@ -16,6 +17,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   bookingLink.href = urls.booking;
+  bookingLinks.forEach((link) => {
+    link.href = urls.booking;
+  });
   bookingUrl.textContent = `Agenda publica: ${urls.booking}`;
   adminUrl.textContent = `Painel administrativo: ${urls.admin}`;
 

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
 
 :root {
   --bg: #050816;
@@ -22,7 +22,8 @@
   --glow: 0 0 0 1px rgba(116, 216, 255, 0.12), 0 0 28px rgba(77, 163, 255, 0.18);
   --radius: 24px;
   --radius-sm: 16px;
-  --font: "Bahnschrift", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font: "Manrope", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font-display: "Sora", "Manrope", "Segoe UI", sans-serif;
 }
 
 * {
@@ -2620,5 +2621,467 @@ body.dashboard-body--premium::after {
   .form-grid-2,
   .form-grid-3 {
     grid-template-columns: 1fr;
+  }
+}
+
+h1,
+h2,
+h3,
+.saas-brand strong,
+.dashboard-stat-card strong,
+.flow-progress__step strong,
+.booking-progress-step__copy strong {
+  font-family: var(--font-display);
+}
+
+.button:active,
+button:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.saas-hero__copy,
+.saas-preview-card,
+.saas-card,
+.dashboard-hero-card,
+.dashboard-link-card,
+.booking-showcase-card,
+.booking-screen,
+.booking-success-card {
+  animation: surfaceFadeIn 0.42s ease both;
+}
+
+@keyframes surfaceFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.micro-trust-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.micro-trust-bar span,
+.dashboard-anchor-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(164, 187, 228, 0.66);
+  background: rgba(255, 255, 255, 0.82);
+  color: #27415f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.portal-hero-premium {
+  align-items: stretch;
+}
+
+.portal-preview-stack,
+.flow-sidebar,
+.auth-support-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.portal-preview-display h2 {
+  max-width: 13ch;
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem);
+}
+
+.app-route-preview {
+  display: grid;
+  gap: 12px;
+}
+
+.app-route-preview__item,
+.flow-links-preview div,
+.dashboard-guidance-card,
+.flow-review-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(191, 205, 228, 0.78);
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.saas-preview-card--dark .app-route-preview__item {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.app-route-preview__item span,
+.flow-links-preview span {
+  color: inherit;
+  opacity: 0.76;
+  font-size: 0.82rem;
+}
+
+.app-route-preview__item code,
+.flow-links-preview code {
+  overflow-wrap: anywhere;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.92rem;
+}
+
+.portal-decision-grid,
+.flow-layout,
+.auth-layout {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+.portal-decision-grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+}
+
+.portal-choice-card,
+.auth-card,
+.auth-support-card,
+.flow-sidebar-card {
+  display: grid;
+  gap: 18px;
+  height: 100%;
+}
+
+.portal-choice-card__lead {
+  margin: 0;
+  color: #50657f;
+  line-height: 1.7;
+}
+
+.portal-choice-preview {
+  margin: 0;
+}
+
+.portal-choice-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+  color: #536784;
+  line-height: 1.7;
+}
+
+.portal-choice-card--primary {
+  background:
+    linear-gradient(135deg, rgba(13, 22, 40, 0.98), rgba(18, 49, 93, 0.95) 52%, rgba(45, 124, 255, 0.86)),
+    #0d1628;
+  border-color: rgba(37, 87, 171, 0.24);
+  box-shadow: 0 26px 54px rgba(13, 22, 40, 0.18);
+}
+
+.portal-choice-card--primary h2,
+.portal-choice-card--primary .portal-choice-card__lead,
+.portal-choice-card--primary .portal-choice-list,
+.portal-choice-card--primary .section-heading p {
+  color: #f3f8ff;
+}
+
+.portal-choice-card--primary .section-step {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.portal-choice-card--primary .saas-inline-preview {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #d4e8ff;
+}
+
+.portal-choice-card--primary .saas-inline-preview strong {
+  color: #ffffff;
+}
+
+.portal-choice-card .hero-actions {
+  margin-top: auto;
+}
+
+.portal-access-form {
+  gap: 14px;
+}
+
+.form-inline-note {
+  margin: 0;
+  color: #667a97;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.portal-flow-panel--premium,
+.dashboard-guidance-panel {
+  padding: 30px;
+}
+
+.flow-layout {
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.78fr);
+}
+
+.onboarding-flow-form {
+  gap: 22px;
+}
+
+.flow-progress {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.flow-progress__step {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(191, 205, 228, 0.86);
+  background: #f9fbff;
+  color: #667a97;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.flow-progress__step span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(45, 124, 255, 0.08);
+  color: #2152a6;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.flow-progress__step strong {
+  color: #0f1c2f;
+  font-size: 0.95rem;
+}
+
+.flow-progress__step small {
+  font-size: 0.82rem;
+}
+
+.flow-progress__step.is-active {
+  border-color: rgba(45, 124, 255, 0.36);
+  background: linear-gradient(180deg, #f5f9ff 0%, #edf4ff 100%);
+  box-shadow: 0 18px 30px rgba(45, 124, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.flow-progress__step.is-complete {
+  border-color: rgba(39, 174, 96, 0.26);
+}
+
+.flow-progress__step.is-complete span {
+  background: rgba(39, 174, 96, 0.12);
+  color: #167445;
+}
+
+.flow-step {
+  display: none;
+  gap: 18px;
+  animation: surfaceFadeIn 0.34s ease both;
+}
+
+.flow-step.is-active {
+  display: grid;
+}
+
+.flow-step__header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.flow-step__header p {
+  margin: 8px 0 0;
+}
+
+.flow-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flow-actions__hint {
+  color: #5c6f8b;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.flow-review-grid,
+.dashboard-guidance-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.flow-review-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.flow-review-card span,
+.dashboard-guidance-card span {
+  color: #667a97;
+  font-size: 0.84rem;
+}
+
+.flow-review-card strong,
+.dashboard-guidance-card h3 {
+  color: #0f1c2f;
+}
+
+.flow-links-preview {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.flow-links-preview--stack {
+  grid-template-columns: 1fr;
+}
+
+.flow-links-preview strong {
+  color: #0f1c2f;
+}
+
+.flow-sidebar-card {
+  padding: 24px;
+}
+
+.flow-sidebar-card--soft {
+  background:
+    linear-gradient(180deg, rgba(245, 249, 255, 0.98), rgba(237, 244, 255, 0.92)),
+    #ffffff;
+}
+
+.auth-layout {
+  grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.8fr);
+}
+
+.auth-support-card {
+  padding: 24px;
+}
+
+.auth-support-card p {
+  margin: 0;
+  color: #5e728f;
+  line-height: 1.65;
+}
+
+.auth-support-card--accent {
+  background: linear-gradient(180deg, #f5f9ff 0%, #edf4ff 100%);
+}
+
+.dashboard-anchor-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.dashboard-anchor-link {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.dashboard-anchor-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(45, 124, 255, 0.34);
+  box-shadow: 0 14px 26px rgba(45, 124, 255, 0.12);
+}
+
+.dashboard-guidance-card span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(45, 124, 255, 0.08);
+  color: #2152a6;
+  font-weight: 800;
+}
+
+.dashboard-guidance-card p {
+  margin: 0;
+  color: #5d718f;
+  line-height: 1.65;
+}
+
+.dashboard-links-card .dashboard-link-grid {
+  margin-top: 6px;
+}
+
+.dashboard-panel .section-heading h2 {
+  font-size: 1.34rem;
+}
+
+.dashboard-form-card,
+.dashboard-edit-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 12px 24px rgba(25, 52, 93, 0.06);
+}
+
+@media (max-width: 1080px) {
+  .portal-decision-grid,
+  .flow-layout,
+  .auth-layout,
+  .dashboard-guidance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .flow-progress,
+  .flow-review-grid,
+  .flow-links-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-actions {
+    align-items: stretch;
+  }
+
+  .flow-actions .button,
+  .onboarding-footer .button,
+  .auth-support-card .button {
+    width: 100%;
+  }
+
+  .micro-trust-bar,
+  .dashboard-anchor-nav {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
